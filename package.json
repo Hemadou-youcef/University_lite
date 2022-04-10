@@ -49,6 +49,7 @@
     "npm": "^8.5.5",
     "on-finished": "^2.3.0",
     "parseurl": "^1.3.3",
+    "path": "^0.12.7",
     "path-to-regexp": "^0.1.7",
     "process-nextick-args": "^2.0.1",
     "proxy-addr": "^2.0.7",
@@ -73,7 +74,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js",
+    "start": "node index.js",
     "dev": "nodemon index.js"
   },
   "author": "",

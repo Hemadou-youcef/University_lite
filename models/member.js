@@ -18,6 +18,10 @@ const MemberSchema = Schema({
         type : Date,
         require: false
     },
+    gender : {
+        type: String,
+        require:true,
+    },
     Residence :{
         type : String,
         require: true

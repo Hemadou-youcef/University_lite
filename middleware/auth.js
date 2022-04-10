@@ -1,0 +1,28 @@
+const jwt = require("jsonwebtoken");
+
+const config = process.env;
+
+const verifyToken = (req, res, next) => {
+    const token =
+      req.body.token || req.query.token || req.headers["x-access-token"];
+
+    if (!token) {
+      return res.status(403).send({
+        "response": "A token is required for authentication",
+        "ok":0
+      });
+    }
+    try {
+      const decoded = jwt.verify(token, config.TOKEN_KEY);
+      req.body.user = decoded;
+    } catch (err) {
+      return res.status(401).send({
+        "response": "Sorry you don't have access, that all we know",
+        "ok":0
+      });
+    }
+    
+    return next();
+};
+
+module.exports = verifyToken;

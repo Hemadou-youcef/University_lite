@@ -1,0 +1,201 @@
+<%- include("./layout/header.ejs");  %>
+    <v-main >
+        <v-container>
+            <v-card class="pa-5 mx-auto" max-width="600">
+                <v-alert
+                    dense
+                    outlined
+                    v-if="response.show"
+                    :type="response.type"
+                    >
+                        {{ response.message }}
+                </v-alert>
+                <v-btn v-if="response.show && response.type == 'success'" @click="goto('/login')" color="primary">
+                    Go To login
+                </v-btn>
+                
+                <v-form
+                    ref="form"
+                    v-else
+                    v-model="valid"
+                    lazy-validation
+                >
+                    <v-text-field
+                    v-model="register_info.first_name"
+                    :rules="nameRules"
+                    label="FIRST NAME"
+                    prepend-icon="mdi-account"
+                    class="pa-2"
+                    background-color="white"
+                    hide-details
+                    outlined
+                    required
+                    ></v-text-field>
+
+                    <v-text-field
+                    v-model="register_info.last_name"
+                    :rules="nameRules"
+                    label="LAST NAME"
+                    prepend-icon="mdi-account"
+                    class="pa-2"
+                    background-color="white"
+                    hide-details
+                    outlined
+                    required
+                    ></v-text-field>
+
+                    <v-text-field
+                    v-model="register_info.user_name"
+                    :rules="nameRules"
+                    label="User Name"
+                    prepend-icon="mdi-account"
+                    class="pa-2"
+                    background-color="white"
+                    hide-details
+                    outlined
+                    required
+                    ></v-text-field>
+
+                    <v-text-field
+                    v-model="register_info.password"
+                    :rules="nameRules"
+                    label="Password"
+                    type="password"
+                    prepend-icon="mdi-lock"
+                    class="pa-2"
+                    background-color="white"
+                    hide-details
+                    outlined
+                    required
+                    ></v-text-field>
+
+                    <v-checkbox
+                    v-model="checkbox"
+                    :rules="[v => !!v || 'You must agree to continue!']"
+                    label="Do you agree?"
+                    required
+                    ></v-checkbox>
+                    
+                    <v-btn
+                    :disabled="!(valid && checkbox)"
+                    color="success"
+                    class="mr-4"
+                    :loading="loading"
+                    @click="register"
+                    >
+                    Register
+                    </v-btn>
+
+                    <v-btn
+                    color="error"
+                    class="mr-4"
+                    @click="reset"
+                    >
+                    Reset Form
+                    </v-btn>
+
+                </v-form>
+
+
+
+            </v-card>
+        </v-container>
+    </v-main>
+    <v-footer padless>
+        <v-col
+        class="text-center"
+        cols="12"
+        >
+        {{ new Date().getFullYear() }} — <strong>By Youcef Hemadou</strong>
+        </v-col>
+    </v-footer>
+</v-app>
+    <script src="script/vue.min.js"></script>
+    <script src="script/vuetify.min.js"></script>
+    <script src="script/axios.min.js"></script>
+
+    <script>
+        // import CardInfo from "components/CardInfo"
+        // var CardInfo = require("./components/CardInfo")
+        var vm =  new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data:{
+                page_name : "MINI-CONTROLL",
+                logged : false,
+                info:{},
+                drawered: true,
+                valid:false,
+                checkbox:false,
+                loading:false,
+                response:{
+                    show:false,
+                    type:"",
+                    message:""
+                },
+                nameRules: [
+                    v => !!v || 'required',
+                    v => (v && v.length >= 4) || 'must be less than 4 characters',
+                ],
+                register_info:{
+                    first_name:"",
+                    last_name:"",
+                    user_name:"",
+                    password:""
+                }
+            },
+            computed:{
+                styleColor(){
+                return 'background-image: linear-gradient(270deg,#' + this.secondColor +  ' ,#' + this.firstColor +  ')';
+                }
+
+            },
+            methods: {
+                goto(url){
+                    window.location.href = url
+                },
+                logout() {
+                    localStorage.removeItem("token");
+                    window.location.href = '/login'
+                },
+                reset(){
+                    this.register_info ={
+                        first_name:"",
+                        last_name:"",
+                        user_name:"",
+                        password:""
+                    }
+                },
+                register() {
+                    this.loading = true
+                    axios.post('/api/register', this.register_info).then((res) => {
+                        this.loading = false
+                        if (res.data.ok == 1) {
+                            this.response.show = true
+                            this.response.type = "success"
+                            this.response.message = res.data.response
+                            this.reset()
+                        }else{
+                            this.response.show = true
+                            this.response.type = "error"
+                            this.response.message = res.data.response
+                        }
+                    }).catch(
+                        err => {
+                            this.errors = err.response.data.errors
+                            console.log(this.errors)
+                        }
+                    )
+                    
+                }
+            },
+            created() {
+                if (localStorage.getItem("token") === null) {
+                    
+                }
+            },
+
+        })
+    </script>
+    
+<%- include("./layout/footer.ejs") %>

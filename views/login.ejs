@@ -1,0 +1,152 @@
+<%- include("./layout/header.ejs");  %>
+    <v-main >
+        <v-container>
+            <v-card class="pa-5 mx-auto rounded-lg" max-width="600">
+                <v-alert
+                    dense
+                    outlined
+                    v-if="response.show"
+                    :type="response.type"
+                    >
+                        {{ response.message }}
+                </v-alert>
+                <v-form
+                    ref="form"
+                    v-model="valid"
+                    lazy-validation
+                >
+                    <v-text-field
+                    v-model="login_info.user_name"
+                    label="User Name"
+                    prepend-icon="mdi-account"
+                    class="pa-2"
+                    v-on:keyup.enter="login"
+                    background-color="white"
+                    hide-details
+                    outlined
+                    required
+                    ></v-text-field>
+
+                    <v-text-field
+                    v-model="login_info.password"
+                    label="Password"
+                    type="password"
+                    prepend-icon="mdi-lock"
+                    class="pa-2"
+                    v-on:keyup.enter="login"
+                    background-color="white"
+                    hide-details
+                    outlined
+                    required
+                    ></v-text-field>
+                    <div class="text-center">
+                        <v-btn
+                        :disabled="!valid"
+                        color="success"
+                        class="mx-auto pa-5"
+                        :loading="loading"
+                        outlined
+                        @click="login"
+                        >
+                            Login
+                        </v-btn>
+                    </div>
+                </v-form>
+
+
+
+            </v-card>
+        </v-container>
+    </v-main>
+    <v-footer padless>
+        <v-col
+        class="text-center"
+        cols="12"
+        >
+        {{ new Date().getFullYear() }} — <strong>By Youcef Hemadou</strong>
+        </v-col>
+    </v-footer>
+</v-app>
+    <script src="script/vue.min.js"></script>
+    <script src="script/vuetify.min.js"></script>
+    <script src="script/axios.min.js"></script>
+    <!-- {"user_name" : "yousedl","password" : "12345678991"} -->
+    <script>
+        // import CardInfo from "components/CardInfo"
+        // var CardInfo = require("./components/CardInfo")
+        var vm =  new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data:{
+                page_name : "MINI-CONTROLL",
+                logged : false,
+                drawered: true,
+                loading:false,
+                valid:false,
+                items: [
+                    { title: 'About US', icon: 'mdi-information-variant', url:"/About-us"},
+                ],
+                response:{
+                    show:false,
+                    type:"",
+                    message:""
+                },
+                login_info:{
+                    "user_name":"",
+                    "password":""
+                },
+            },
+            computed:{
+                styleColor(){
+                return 'background-image: linear-gradient(270deg,#' + this.secondColor +  ' ,#' + this.firstColor +  ')';
+                }
+
+            },
+            methods: {
+                goto(url){
+                    window.location.href = url
+                },
+                logout() {
+                    localStorage.removeItem("token");
+                    window.location.href = '/'
+                },
+                login() {
+                    if(this.valid){
+                        this.loading = true
+                        axios.post('/api/login', this.login_info).then((res) => {
+                            this.loading = false
+                            if (res.data.ok == 1) {
+                                console.log(res.data.data.token)
+                                localStorage.setItem("token", res.data.data.token);
+                                console.log(this)
+                                this.info = res.data.response
+                                this.logged = true
+                                axios.defaults.headers.post['x-access-token'] = res.data.data.token
+                                axios.defaults.headers.common['x-access-token'] = res.data.data.token
+                                window.location.href = '/'
+                                
+                            }else{
+                                localStorage.removeItem("token");
+                                this.response.show = true
+                                this.response.type = "error"
+                                this.response.message = res.data.response
+                            }
+                        }).catch(
+                            err => {
+                                this.errors = err.response.data.errors
+                                console.log(this.errors)
+                            }
+                        )
+                    }
+                }
+            },
+            created() {
+                if (localStorage.getItem("token") === null) {
+                    
+                }
+            },
+
+        })
+    </script>
+    
+<%- include("./layout/footer.ejs") %>

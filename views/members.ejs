@@ -1,0 +1,490 @@
+<%- include("./layout/header.ejs"); %>
+    <v-main>
+        <v-container>
+            <v-tabs centered grow>
+                <v-tabs-slider></v-tabs-slider>
+                <v-tab>STUDENTS</v-tab>
+                <v-tab-item>
+                    <v-btn color="primary" @click="add_member_form('student',1)" style="float:right" class="mt-2"
+                        outlined>
+                        <v-icon color="primary">
+                            mdi-plus
+                        </v-icon>
+                        ADD
+                    </v-btn>
+                    <v-row class="mb-0 pa-5">
+                        <v-col v-for="(student, i) in students" :key="i" cols="6">
+                            <v-card :color="'#385F73'" dark>
+                                <v-card-title class="text-h5">
+                                    <h4>{{ student.member_name.toUpperCase() + " " +
+                                        student.member_surname.toUpperCase() }}</h4>
+                                </v-card-title>
+                                <v-card-subtitle class="pb-0">
+                                    <b>Student ID: {{ student.member_id }}</b>
+                                    <br>
+                                    <b>birth date: {{ new Date(student.member_birth).getFullYear() }}-{{new
+                                        Date(student.member_birth).getMonth() + 1}}-{{new
+                                        Date(student.member_birth).getDate() }}</b><br>
+                                    <b>Current year: {{ student.member_status.years + " " +
+                                        student.member_status.specialty + " " +
+                                        student.member_status.department}}</b><br>
+                                    <b>Student Gender: {{ student.member_gender.toUpperCase() }}</b>
+                                </v-card-subtitle>
+                                <v-card-actions>
+                                    <v-btn :loading="loading" class="ma-1" color="success lighten-3" plain outlined
+                                        @click="edit_student(i)">
+                                        <v-icon left>
+                                            mdi-pencil
+                                        </v-icon>
+                                        Edit
+                                    </v-btn>
+
+                                    <v-btn :loading="loading" class="ma-1" color="red" @click="delete_student(i)">
+                                        Delete
+                                    </v-btn>
+                                </v-card-actions>
+                            </v-card>
+                        </v-col>
+                    </v-row>
+                </v-tab-item>
+                <v-tab>TEACHERS</v-tab>
+                <v-tab-item>
+                    <v-btn color="primary" @click="add_member_form('teacher',0)" style=" float:right" class="mt-2"
+                        outlined>
+                        <v-icon color="primary">
+                            mdi-plus
+                        </v-icon>
+                        ADD
+                    </v-btn>
+                    <v-row class="mb-0 pa-5">
+                        <v-col v-for="(teacher, i) in teachers" :key="i" cols="6">
+                            <v-card :color="'#385F73'" dark>
+                                <v-card-title class="text-h5">
+                                    <h4>{{ teacher.member_name.toUpperCase() + " " +
+                                        teacher.member_surname.toUpperCase() }}</h4>
+                                </v-card-title>
+                                <v-card-subtitle class="pb-0">
+                                    <b>Teacher ID: {{ teacher.member_id }}</b><br>
+                                    <b>birth date: {{ new Date(teacher.member_birth).getFullYear() }}-{{new
+                                        Date(teacher.member_birth).getMonth() + 1}}-{{new
+                                        Date(teacher.member_birth).getDate() }}</b><br>
+                                    <b>Current year: {{ teacher.member_status.years.toUpperCase() + " " +
+                                        teacher.member_status.subject.toUpperCase() + " " +
+                                        teacher.member_status.department.toUpperCase()}}</b><br>
+                                    <b>Teacher Gender: {{ teacher.member_gender.toUpperCase() }}</b>
+                                </v-card-subtitle>
+                                <v-card-actions>
+                                    <v-btn :loading="loading" class="ma-1" color="success lighten-3" plain outlined
+                                        @click="edit_teacher(i)">
+                                        <v-icon left>
+                                            mdi-pencil
+                                        </v-icon>
+                                        Edit
+                                    </v-btn>
+
+                                    <v-btn :loading="loading" class="ma-1" color="red" @click="delete_teacher(i)">
+                                        Delete
+                                    </v-btn>
+                                </v-card-actions>
+                            </v-card>
+                        </v-col>
+                    </v-row>
+
+                </v-tab-item>
+            </v-tabs>
+        </v-container>
+        <v-dialog width="600" v-if="edit_members || add_members" v-model="edit_members">
+            <v-card style="overflow: hidden !important;" width="600" class="pt-5 pr-5 pl-5 pb-0">
+                <v-text-field v-model="edited_member.member_name" :rules="requireField" label="NAME" class="pa-2"
+                    background-color="white" hide-details outlined required></v-text-field>
+                <v-text-field v-model="edited_member.member_surname" :rules="requireField" label="SURNAME" class="pa-2"
+                    background-color="white" hide-details outlined required></v-text-field>
+                <v-text-field v-model="edited_member.member_residence" :rules="requireField" label="RESIDENCE"
+                    class="pa-2" background-color="white" hide-details outlined required></v-text-field>
+                <div class="text-center">
+                    <v-btn-toggle class="ml-2" v-model="edited_member.gender_">
+                        <v-tooltip bottom>
+                            <template v-slot:activator="{ on }">
+                                <v-btn v-on="on" @click="edited_member.member_gender = 'male'" color="blue" outlined>
+                                    <v-icon large>mdi-gender-male</v-icon>
+                                </v-btn>
+                            </template>
+                            MALE
+                        </v-tooltip>
+                        <v-tooltip bottom>
+                            <template v-slot:activator="{ on }">
+                                <v-btn v-on="on" @click="edited_member.member_gender = 'female'" color="pink" outlined>
+                                    <v-icon large>mdi-gender-female</v-icon>
+                                </v-btn>
+                            </template>
+                            FEMALE
+                        </v-tooltip>
+                    </v-btn-toggle>
+                    <v-btn-toggle class="ml-2" v-if="add_members" v-model="edited_member.state_">
+                        <v-tooltip bottom>
+                            <template v-slot:activator="{ on }">
+                                <v-btn v-on="on" @click="edited_member.member_status.state = 'teacher'" color="green"
+                                    outlined>
+                                    <v-icon large>mdi-book-open-page-variant</v-icon>
+                                </v-btn>
+                            </template>
+                            TEACHER
+                        </v-tooltip>
+                        <v-tooltip bottom>
+                            <template v-slot:activator="{ on }">
+                                <v-btn v-on="on" @click="edited_member.member_status.state = 'student'" color="blue"
+                                    outlined>
+                                    <v-icon large>mdi-account-school</v-icon>
+                                </v-btn>
+                            </template>
+                            STUDENT
+                        </v-tooltip>
+                    </v-btn-toggle>
+                </div>
+
+                <v-dialog ref="date_dialog" v-model="date_model" :return-value.sync="edited_member.member_birth"
+                    persistent width="290px">
+                    <template v-slot:activator="{ on, attrs }">
+                        <v-text-field v-model="edited_member.member_birth" label="Date of appointment"
+                            prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on"></v-text-field>
+                    </template>
+                    <v-date-picker v-model="edited_member.member_birth" scrollable>
+                        <v-spacer></v-spacer>
+                        <v-btn text color="primary" @click="date_model = false">
+                            Cancel
+                        </v-btn>
+                        <v-btn text color="primary" @click="$refs.date_dialog.save(edited_member.member_birth)">
+                            OK
+                        </v-btn>
+                    </v-date-picker>
+                </v-dialog>
+                <v-text-field v-model="edited_member.member_status.years" :rules="requireField" label="YEAR"
+                    class="pa-2" background-color="white" hide-details outlined required></v-text-field>
+
+                <v-text-field v-if="edited_member.member_status.state == 'student'"
+                    v-model="edited_member.member_status.specialty" :rules="requireField" label="SPECIALTY" class="pa-2"
+                    background-color="white" hide-details outlined required></v-text-field>
+                <v-text-field v-else v-model="edited_member.member_status.subject" :rules="requireField" label="SUBJECT"
+                    class="pa-2" background-color="white" hide-details outlined required></v-text-field>
+
+                <v-text-field v-model="edited_member.member_status.department" :rules="requireField" label="DEPARTMENT"
+                    class="pa-2" background-color="white" hide-details outlined required></v-text-field>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="blue darken-1" text @click="edit_members = false">
+                        Close
+                    </v-btn>
+                    <v-btn v-if="add_members" :loading="Editloading" color="blue darken-1" text @click="add_member">
+                        add
+                    </v-btn>
+                    <v-btn v-else :loading="Editloading" color="blue darken-1" text @click="edit_member">
+                        Edit
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-dialog width="400" v-model="deletememberDialog">
+            <v-card style="overflow: hidden !important;" width="400" height="150">
+                <div class="text-caption text-center pt-6 red--text" style="font-size: 16px !important; ">Are you
+                    sure you want to delete this account
+                </div>
+
+                <v-card-text>
+                    <v-row class="mt-5" justify="center">
+
+                        <v-spacer></v-spacer>
+
+                        <v-tooltip bottom>
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-btn @click="delete_member" :loading="Deleteloading" v-on="on" v-bind="attrs" outlined
+                                    icon large color="red">
+                                    <v-icon color="red">mdi-check</v-icon>
+                                </v-btn>
+
+                            </template>
+                            <span>Are you sure!</span>
+                        </v-tooltip>
+
+                        <v-spacer></v-spacer>
+                        <v-tooltip bottom>
+
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-btn @click="deletememberDialog = false" v-on="on" v-bind="attrs" outlined icon large
+                                    color="green">
+                                    <v-icon color="green">mdi-close</v-icon>
+                                </v-btn>
+
+                            </template>
+                            <span>Cancel</span>
+
+                        </v-tooltip>
+
+                        <v-spacer></v-spacer>
+
+                    </v-row>
+                </v-card-text>
+
+
+            </v-card>
+        </v-dialog>
+        <v-snackbar :value="snackbar" :color="color">
+            {{ message }}
+            <template v-slot:action="{ attrs }">
+                <v-btn color="white" text v-bind="attrs" @click="snackbar = false">
+                    Close
+                </v-btn>
+            </template>
+        </v-snackbar>
+    </v-main>
+    <v-footer padless>
+        <v-col class="text-center" cols="12">
+            {{ new Date().getFullYear() }} — <strong>By Youcef Hemadou</strong>
+        </v-col>
+    </v-footer>
+    </v-app>
+    <script src="script/vue.min.js"></script>
+    <script src="script/vuetify.min.js"></script>
+    <script src="script/axios.min.js"></script>
+
+    <script>
+        // import CardInfo from "components/CardInfo"
+        // var CardInfo = require("./components/CardInfo")
+        var vm = new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data: {
+                page_name: "MINI-CONTROLL",
+                logged: false,
+                deletememberDialog: false,
+                drawered: true,
+                snackbar: false,
+                drawered: true,
+                edit_members: false,
+                add_members: false,
+                Editloading: false,
+                loadingContents: true,
+                date_model: false,
+                message: "",
+                color: "success",
+                info: {},
+                edited_member: {
+
+                },
+                items: [],
+                students: [],
+                teachers: [],
+
+                requireField: [
+                    (v) => !!v || 'field is required',
+                ],
+            },
+            computed: {
+                styleColor() {
+                    return 'background-image: linear-gradient(270deg,#' + this.secondColor + ' ,#' + this.firstColor + ')';
+                }
+                
+            },
+            watch:{
+                edit_members(v){
+                    if(!v){
+                        this.add_members = false
+                    }
+                    
+                }
+            },
+            methods: {
+                goto(url) {
+                    window.location.href = url
+                },
+                logout() {
+                    localStorage.removeItem("token");
+                    window.location.href = '/login'
+                },
+                add_member_form(state, number) {
+                    this.add_members = true
+                    this.edit_members = true
+                    this.edited_member = {
+                        "state_": number,
+                        "member_name": "",
+                        "member_surname": "",
+                        "member_birth": "2000-01-01",
+                        "member_gender": "male",
+                        "member_residence": "",
+                        "member_status":
+                        {
+                            "state": state, "years": "", "subject": "", "department": " ", "specialty": ""
+                        }
+                    }
+                },
+                add_member() {
+                    let query = {
+                        name: this.edited_member.member_name,
+                        surname: this.edited_member.member_surname,
+                        birth: this.edited_member.member_birth,
+                        Residence: this.edited_member.member_residence,
+                        gender: this.edited_member.member_gender,
+                        department: this.edited_member.member_status.department,
+                        specialty: this.edited_member.member_status.specialty,
+                        year: this.edited_member.member_status.years,
+                        subject: this.edited_member.member_status.subject,
+                    }
+                    this.Editloading = true
+                    axios.post("/api/" + this.edited_member.member_status.state, query).then((res) => {
+                        this.Editloading = false
+                        if (res.data.ok == 1) {
+                            this.color = "success"
+                            this.message = res.data.response
+                            this.snackbar = true
+                            this.edit_members = false
+                            this.add_members = false
+                            this.reload()
+                        } else {
+                            this.color = "error"
+                            this.message = res.data.response
+                            this.snackbar = true
+                        }
+                    }).catch((err) => {
+
+                    })
+                },
+                edit_student(i) {
+                    this.edited_member = this.students[i]
+                    this.edited_member["gender_"] = (this.edited_member.member_gender == "male") ? 0 : 1
+                    this.edit_members = true
+                },
+                edit_teacher(i) {
+                    this.edited_member = this.teachers[i]
+                    this.edited_member["gender_"] = (this.edited_member.member_gender == "male") ? 0 : 1
+                    this.edit_members = true
+                },
+
+                delete_student(i) {
+                    this.edited_member = this.students[i]
+                    this.deletememberDialog = true
+                },
+                delete_teacher(i) {
+                    this.edited_member = this.teachers[i]
+                    this.deletememberDialog = true
+                },
+                edit_member() {
+                    let query = {
+                        name: this.edited_member.member_name,
+                        surname: this.edited_member.member_surname,
+                        birth: this.edited_member.member_birth,
+                        Residence: this.edited_member.member_residence,
+                        gender: this.edited_member.member_gender,
+                        status: this.edited_member.member_status,
+                    }
+                    this.Editloading = true
+                    axios.put("/api/" + this.edited_member.member_status.state + "/" + this.edited_member.member_id, query).then((res) => {
+                        this.Editloading = false
+                        if (res.data.ok == 1) {
+                            this.color = "success"
+                            this.message = res.data.response
+                            this.snackbar = true
+                            this.edit_members = false
+                            this.reload()
+
+                        } else {
+                            this.color = "error"
+                            this.message = res.data.response
+                            this.snackbar = true
+                        }
+                    }).catch((err) => {
+
+                    })
+
+                },
+                delete_member() {
+                    this.Deleteloading = true
+                    axios.delete("/api/" + this.edited_member.member_status.state + "/" + this.edited_member.member_id).then((res) => {
+                        this.Deleteloading = false
+                        if (res.data.ok == 1) {
+                            this.color = "success"
+                            this.message = res.data.response
+                            this.snackbar = true
+                            this.deletememberDialog = false
+                            this.reload()
+
+                        } else {
+                            this.color = "error"
+                            this.message = res.data.response
+                            this.snackbar = true
+                        }
+                    }).catch((err) => {
+
+                    })
+                },
+                reload() {
+                    axios.get('/api/student/-1').then((res) => {
+                        console.log(res.data)
+                        this.students = res.data
+                        this.students.forEach((value, index) => {
+                            let student_date = new Date(value.member_birth)
+                            this.students[index].member_birth = new Date(student_date.getFullYear() + "-" + (student_date.getMonth() + 1) + "-" + student_date.getDate()).toISOString().substr(0, 10)
+                        })
+
+                        this.loadingContents = false
+                    }).catch(
+                        err => {
+                            this.errors = err.response.data.errors
+                            console.log(this.errors)
+                        }
+                    )
+                    axios.get('/api/teacher/-1').then((res) => {
+                        // console.log(res.data)
+                        this.teachers = res.data
+                        this.teachers.forEach((value, index) => {
+                            let teachers_date = new Date(value.member_birth)
+                            this.teachers[index].member_birth = new Date(teachers_date.getFullYear() + "-" + (teachers_date.getMonth() + 1) + "-" + teachers_date.getDate()).toISOString().substr(0, 10)
+                        })
+                    }).catch(
+                        err => {
+                            this.errors = err.response.data.errors
+                            console.log(this.errors)
+                        }
+                    )
+                }
+            },
+            created() {
+                if (localStorage.getItem("token") === null) {
+                    window.location.href = '/login'
+                } else {
+                    axios.defaults.headers.post['x-access-token'] = localStorage.getItem("token")
+                    axios.defaults.headers.common['x-access-token'] = localStorage.getItem("token")
+                    axios.get('/api/user/me').then((res) => {
+                        // console.log(res.data)
+                        this.info = res.data
+                        this.logged = true
+                        this.items.push(
+                            { title: 'Dashboard', icon: 'mdi-view-dashboard', url: "/", selected: false },
+                            { title: 'Account', icon: 'mdi-badge-account-horizontal-outline', url: "/profile", selected: false },
+                        )
+                        if (res.data.role.toLowerCase() == "super admin") {
+                            this.items.push(
+                                { title: 'Users', icon: 'mdi-account-supervisor-outline', url: "/users", selected: false },
+                                { title: 'Members', icon: 'mdi-account-group-outline', url: "/members", selected: true },
+                            )
+                        } else {
+                            window.location.href = '/'
+                        }
+                        if (res.data.user_refere != -1) {
+                            this.items.push(
+                                { title: 'Complaints', icon: 'mdi-alert-circle', url: "/complaints" },
+                                { title: 'Marks', icon: 'mdi-format-text-variant-outline', url: "/marks", selected: false }
+                            )
+                        }
+                    }).catch(
+                        err => {
+                            this.errors = err.response.data.errors
+                            console.log(this.errors)
+                        }
+                    )
+                    this.reload()
+                }
+            }
+
+        })
+    </script>
+
+    <%- include("./layout/footer.ejs") %>

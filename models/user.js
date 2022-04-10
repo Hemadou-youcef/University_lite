@@ -6,6 +6,14 @@ const UserSchema = Schema({
         type : Number,
         require: true
     },
+    first_name :{
+        type : String,
+        require: true
+    },
+    last_name :{
+        type : String,
+        require: true
+    },
     user_name :{
         type : String,
         require: true
@@ -21,6 +29,10 @@ const UserSchema = Schema({
     role: {
         type : Number,
         require: true
+    },
+    token: {
+        type : String,
+        require: false
     }
 },{
     titmestamps: true

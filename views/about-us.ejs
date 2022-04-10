@@ -1,0 +1,100 @@
+<%- include("./layout/header.ejs");  %>
+    <v-main >
+        <v-container>
+            <v-card-title>
+                <v-icon
+                  large
+                  left
+                >
+                  mdi-bell-circle
+                </v-icon>
+                <span class="text-h6 font-weight-bold">ABOUT US</span>
+              </v-card-title>
+          
+              <v-card-text class="text-h5 font-weight-bold text-center">
+                THANX FOR USING OUR WEBSITE
+                <br>
+                THIS WEBSITE MADE BY:
+                <br>
+                NODE JS 
+                <br>
+                VUE JS 
+
+              </v-card-text>
+          
+              <v-card-actions>
+                <v-list-item class="grow mx-auto" width="20px">
+                  <v-list-item-avatar color="grey darken-3 ">
+                    <v-img
+                      class="elevation-6"
+                      alt=""
+                      src="https://avataaars.io/?avatarStyle=Transparent&topType=ShortHairShortCurly&accessoriesType=Prescription02&hairColor=Black&facialHairType=Blank&clotheType=Hoodie&clotheColor=White&eyeType=Default&eyebrowType=DefaultNatural&mouthType=Default&skinColor=Light"
+                    ></v-img>
+                  </v-list-item-avatar>
+          
+                  <v-list-item-content>
+                    <v-list-item-title>Youcef Hemadou</v-list-item-title>
+                  </v-list-item-content>
+          
+                
+                </v-list-item>
+              </v-card-actions>
+              
+            </v-card>
+        </v-container>
+    </v-main>
+    <v-footer padless>
+        <v-col
+        class="text-center"
+        cols="12"
+        >
+        {{ new Date().getFullYear() }} — <strong>By Youcef Hemadou</strong>
+        </v-col>
+    </v-footer>
+</v-app>
+    <script src="script/vue.min.js"></script>
+    <script src="script/vuetify.min.js"></script>
+    <script src="script/axios.min.js"></script>
+
+    <script>
+        // import CardInfo from "components/CardInfo"
+        // var CardInfo = require("./components/CardInfo")
+        var vm =  new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data:{
+                page_name : "MINI-CONTROLL",
+                logged : false,
+                info:{},
+                drawered: true,
+                items: [
+                    { title: 'About US', icon: 'mdi-information-variant', url:"/About-us",selected:true},
+                ],
+                message:"Today Appointments",
+                number: 2,
+                icon: "mdi-calendar",
+                firstColor: "1976d2",
+                secondColor: "33ccff",
+                mode:"simple"
+            },
+            computed:{
+                styleColor(){
+                return 'background-image: linear-gradient(270deg,#' + this.secondColor +  ' ,#' + this.firstColor +  ')';
+                }
+
+            },
+            methods: {
+                goto(url){
+                    window.location.href = url
+                },
+                logout() {
+                    localStorage.removeItem("token");
+                    window.location.href = '/'
+                },
+            }
+            
+
+        })
+    </script>
+    
+<%- include("./layout/footer.ejs") %>

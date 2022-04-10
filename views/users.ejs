@@ -1,0 +1,435 @@
+<%- include("./layout/header.ejs"); %>
+    <v-main>
+        <v-container>
+            <v-row class="mb-0 pa-5">
+                <v-col v-for="(user, i) in users" :key="i" cols="6">
+                    <v-card :color="'#385F73'" dark>
+                        <v-card-title class="text-h5">
+                            <h4>{{ user.firstname.toUpperCase() + " " + user.lastname.toUpperCase() }}</h4>
+                            <v-chip class="ma-2" color="#fff" outlined label text-color="white"
+                                v-if="user.role == 'SUPER ADMIN'" style="float:right">
+                                <v-icon left>
+                                    mdi-shield-crown-outline
+                                </v-icon>
+                                ADMIN
+                            </v-chip>
+                            <v-chip class="ma-2" color="#fff" outlined label text-color="white"
+                                v-else-if="user.role == 'TEACHER'">
+                                <v-icon left>
+                                    mdi-book-open-page-variant
+                                </v-icon>
+                                TEACHER
+                            </v-chip>
+                            <v-chip class="ma-2" color="#fff" outlined label text-color="white"
+                                v-else-if="user.role == 'STUDENT'">
+                                <v-icon left>
+                                    mdi-account-school
+                                </v-icon>
+                                STUDENT
+                            </v-chip>
+                            <v-chip class="ma-2" color="#fff" outlined label v-else-if="user.role == 'GUEST'">
+                                <v-icon left>
+                                    mdi-account
+                                </v-icon>
+                                GUEST
+                            </v-chip>
+                        </v-card-title>
+                        <v-card-subtitle class="pb-0">
+                            <p>User ID: {{ user.user_id }}</p>
+                            <p>User Name: {{ user.user_name }}</p>
+                            <p>linked to : {{ (user.user_refere != -1)? user.user_refere: "NO MEMBER" }}</p>
+                        </v-card-subtitle>
+                        <v-card-actions>
+                            <v-btn :loading="loading" class="ma-1" color="success lighten-3" plain outlined
+                                @click="edit_user(i)">
+                                <v-icon left>
+                                    mdi-pencil
+                                </v-icon>
+                                Edit
+                            </v-btn>
+
+                            <v-btn :loading="loading" class="ma-1" color="red" @click="delete_user(i)">
+                                Delete
+                            </v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-col>
+            </v-row>
+        </v-container>
+        <v-dialog width="600" v-model="edit_users">
+            <v-card style="overflow: hidden !important;" width="600" class="pa-5">
+                <v-card color="blue darken-3" class="mx-auto mb-2 white--text">
+                    <v-card-title class="text-h5">
+                        <h4>{{ edited_user.firstname.toUpperCase() + " " + edited_user.lastname.toUpperCase() }} (ID {{
+                            edited_user.user_id }})</h4>
+                    </v-card-title>
+                </v-card>
+                <v-row>
+                    <v-col cols="12" class="pb-0 pt-5">
+                        <h3>GRANT ROLE</h3>
+                    </v-col>
+
+                    <v-col cols="8">
+                        <v-select v-model="edited_user.role" :items="user_roles" :rules="requireField"
+                            class="mb-2 rounded-lg mt-1" hide-details outlined></v-select>
+                    </v-col>
+                    <v-col cols="4">
+                        <v-btn :loading="grantloading" class="mt-2 pa-5 white--text" color="blue" @click="grant_role">
+                            <v-icon left>
+                                mdi-plus
+                            </v-icon>
+                            GRANT ROLE
+                        </v-btn>
+                    </v-col>
+                </v-row>
+                <v-divider></v-divider>
+                <v-list class="my-2 pa-0">
+                    <h3>LINK ACCOUNT</h3><br>
+                    <v-list-item class="pa-0 font-weight-bold rounded-0">
+                        <v-list-item-content class="pa-0">
+                            <v-overflow-btn class="elevation-0 my-0" editable hide-details background-color="white"
+                                v-model="member_type" :items="member_types" label="type" outlined>
+                            </v-overflow-btn>
+                        </v-list-item-content>
+                        <v-list-item-content class="pa-0 ma-0 ml-6">
+                            <v-overflow-btn class="my-0 elevation-0" editable hide-details background-color="white"
+                                v-model="member_id" :items="member_list" :loading="members_loading"
+                                 label="members" outlined>
+                            </v-overflow-btn>
+                        </v-list-item-content>
+                    </v-list-item>
+                </v-list>
+                <v-btn :loading="linkloading" class="mt-2 pa-5 white--text" color="blue" @click="link_user(false)" large
+                    widht="100%">
+                    <v-icon left>
+                        mdi-plus
+                    </v-icon>
+                    LINK
+                </v-btn>
+                <v-btn :loading="linkloading" class="mt-2 pa-5 white--text" color="red" @click="link_user(true)" large
+                    widht="100%">
+                    <v-icon left>
+                        mdi-minus
+                    </v-icon>
+                    UNLINK
+                </v-btn>
+            </v-card>
+        </v-dialog>
+        <v-dialog width="400" v-model="deleteprofileDialog">
+            <v-card style="overflow: hidden !important;" width="400" height="150">
+                <div class="text-caption text-center pt-6 red--text" style="font-size: 16px !important; ">Are you
+                    sure you want to delete this account
+                </div>
+
+                <v-card-text>
+                    <v-row class="mt-5" justify="center">
+
+                        <v-spacer></v-spacer>
+
+                        <v-tooltip bottom>
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-btn @click="delete_account" :loading="Deleteloading" v-on="on" v-bind="attrs"
+                                    outlined icon large color="red">
+                                    <v-icon color="red">mdi-check</v-icon>
+                                </v-btn>
+
+                            </template>
+                            <span>Are you sure!</span>
+                        </v-tooltip>
+
+                        <v-spacer></v-spacer>
+                        <v-tooltip bottom>
+
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-btn @click="deleteprofileDialog = false" v-on="on" v-bind="attrs" outlined icon large
+                                    color="green">
+                                    <v-icon color="green">mdi-close</v-icon>
+                                </v-btn>
+
+                            </template>
+                            <span>Cancel</span>
+
+                        </v-tooltip>
+
+                        <v-spacer></v-spacer>
+
+                    </v-row>
+                </v-card-text>
+
+
+            </v-card>
+        </v-dialog>
+        <v-snackbar :value="snackbar" :color="color">
+            {{ message }}
+            <template v-slot:action="{ attrs }">
+                <v-btn color="white" text v-bind="attrs" @click="snackbar = false">
+                    Close
+                </v-btn>
+            </template>
+        </v-snackbar>
+    </v-main>
+    <v-footer padless>
+        <v-col class="text-center" cols="12">
+            {{ new Date().getFullYear() }} — <strong>By Youcef Hemadou</strong>
+        </v-col>
+    </v-footer>
+    </v-app>
+    <script src="script/vue.min.js"></script>
+    <script src="script/vuetify.min.js"></script>
+    <script src="script/axios.min.js"></script>
+
+    <script>
+        // import CardInfo from "components/CardInfo"
+        // var CardInfo = require("./components/CardInfo")
+        var vm = new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data: {
+                page_name: "MINI-CONTROLL",
+                logged: false,
+                edit_users: false,
+                deleteprofileDialog: false,
+                Deleteloading: false,
+                grantloading: false,
+                linkloading: false,
+                snackbar: false,
+                drawered: true,
+                members_loading: false,
+                message: "",
+                color: "success",
+                member_type: "",
+                member_id: 0,
+                edited_user: {
+                    firstname: "",
+                    lastname: "",
+                    user_id: 0
+                },
+                user_roles: ["GUEST", "STUDENT", 'TEACHER', "SUPER ADMIN"],
+                member_types: [
+                    'TEACHER', 'STUDENT'
+                ],
+                member_list: [],
+                info: {},
+                items: [],
+                users: []
+            },
+            watch: {
+                member_type(value) {
+                    this.members_loading = true
+                        axios.get('/api/' + value.toLowerCase() + '/-1').then((res) => {
+                            this.member_list = []
+                            res.data.forEach((item) => {
+                                this.member_list.push({
+                                    text: `${item.member_name} ${item.member_surname}`,
+                                    value: item.member_id
+                                })
+                            })
+                            this.members_loading = false
+                        }).catch(
+                            err => {
+                                this.errors = err.response.data.errors
+                                console.log(this.errors)
+                            }
+                        )
+                    
+                }
+            },
+            methods: {
+                goto(url) {
+                    window.location.href = url
+                },
+                logout() {
+                    localStorage.removeItem("token");
+                    window.location.href = '/login'
+                },
+                edit_user(i) {
+                    this.edited_user = this.users[i]
+                    this.member_type = this.users[i].linked_state
+                    this.member_id = this.users[i].linked
+                    this.edit_users = true
+                },
+                grant_role() {
+                    let role_number = {
+                        "GUEST": 0,
+                        "STUDENT": 1,
+                        "TEACHER": 2,
+                        "SUPER ADMIN": 3,
+                    }
+                    this.grantloading = true
+                    axios.put("/api/grant/" + this.edited_user.user_id, { role: role_number[this.edited_user.role] }).then((res) => {
+                        this.grantloading = false
+                        if (res.data.ok == 1) {
+                            this.color = "success"
+                            this.message = res.data.response
+                            this.snackbar = true
+                            this.edit_users = false
+                            axios.get('/api/user/-1').then((res) => {
+                                console.log(res.data)
+                                this.users = res.data
+                                this.users.forEach((value, index) => {
+                                    if (value.user_refere != -1) {
+                                        axios.get('/api/member/' + value.user_refere).then((response) => {
+                                            this.users[index].user_refere = "[" + response.data.member_status.state.toUpperCase() + "] " + response.data.member_name + " " + response.data.member_surname
+                                        })
+                                    }
+                                })
+                            }).catch(
+                                err => {
+                                    this.errors = err.response.data.errors
+                                    console.log(this.errors)
+                                }
+                            )
+                        } else {
+                            this.color = "error"
+                            this.message = res.data.response
+                            this.snackbar = true
+                        }
+                    }).catch((err) => {
+
+                    })
+                },
+                link_user(unlink) {
+                    let query = {}
+                    if(unlink){
+                        query = {
+                            user_refere: -1
+                        }
+                    }else{
+                        query = {
+                            user_refere: this.member_id
+                        }
+                    }
+                    this.linkloading = true
+                    axios.put("/api/link/" + this.edited_user.user_id, query).then((res) => {
+                        this.linkloading = false
+                        if (res.data.ok == 1) {
+                            this.color = "success"
+                            this.message = res.data.response
+                            this.snackbar = true
+                            this.edit_users = false
+                            axios.get('/api/user/-1').then((res) => {
+                                console.log(res.data)
+                                this.users = res.data
+                                this.users.forEach((value, index) => {
+                                    if (value.user_refere != -1) {
+                                        axios.get('/api/member/' + value.user_refere).then((response) => {
+                                            this.users[index].user_refere = "[" + response.data.member_status.state.toUpperCase() + "] " + response.data.member_name + " " + response.data.member_surname
+                                        })
+                                    }
+                                })
+                            }).catch(
+                                err => {
+                                    this.errors = err.response.data.errors
+                                    console.log(this.errors)
+                                }
+                            )
+                        } else {
+                            this.color = "error"
+                            this.message = res.data.response
+                            this.snackbar = true
+                        }
+                    }).catch((err) => {
+
+                    })
+                },
+                delete_user(i) {
+                    this.edited_user = this.users[i]
+                    this.deleteprofileDialog = true
+                },
+                delete_account() {
+                    this.Deleteloading = true
+                    axios.delete("/api/user/" + this.edited_user.user_id).then((res) => {
+                        this.Deleteloading = false
+                        if (res.data.ok == 1) {
+                            this.color = "success"
+                            this.message = res.data.response
+                            this.snackbar = true
+                            this.deleteprofileDialog = false
+                            axios.get('/api/user/-1').then((res) => {
+                                console.log(res.data)
+                                this.users = res.data
+                                this.users.forEach((value, index) => {
+                                    if (value.user_refere != -1) {
+                                        axios.get('/api/member/' + value.user_refere).then((response) => {
+                                            this.users[index].user_refere = "[" + response.data.member_status.state.toUpperCase() + "] " + response.data.member_name + " " + response.data.member_surname
+                                        })
+                                    }
+                                })
+                            }).catch(
+                                err => {
+                                    this.errors = err.response.data.errors
+                                    console.log(this.errors)
+                                }
+                            )
+                        } else {
+                            this.color = "error"
+                            this.message = res.data.response
+                            this.snackbar = true
+                        }
+                    }).catch((err) => {
+
+                    })
+                },
+                check() {
+                    if (localStorage.getItem("token") === null) {
+                        window.location.href = '/login'
+                    } else {
+                        axios.defaults.headers.post['x-access-token'] = localStorage.getItem("token")
+                        axios.defaults.headers.common['x-access-token'] = localStorage.getItem("token")
+                        axios.get('/api/user/me').then((res) => {
+                            // console.log(res.data)
+                            this.info = res.data
+                            this.logged = true
+                            this.items.push(
+                                { title: 'Dashboard', icon: 'mdi-view-dashboard', url: "/", selected: false },
+                                { title: 'Account', icon: 'mdi-badge-account-horizontal-outline', url: "/profile", selected: false },
+                            )
+                            if (res.data.role.toLowerCase() == "super admin") {
+                                this.items.push(
+                                    { title: 'Users', icon: 'mdi-account-supervisor-outline', url: "/users", selected: true },
+                                    { title: 'Members', icon: 'mdi-account-group-outline', url: "/members", selected: false },
+                                )
+                            } else {
+                                window.location.href = '/'
+                            }
+                            if (res.data.user_refere != -1) {
+                                this.items.push(
+                                    { title: 'Complaints', icon: 'mdi-alert-circle', url: "/complaints" },
+                                    { title: 'Marks', icon: 'mdi-format-text-variant-outline', url: "/marks", selected: false }
+                                )
+                            }
+                        }).catch(
+                            err => {
+                                this.errors = err.response.data.errors
+                                console.log(this.errors)
+                            }
+                        )
+                        axios.get('/api/user/-1').then((res) => {
+                            console.log(res.data)
+                            this.users = res.data
+                            this.users.forEach((value, index) => {
+                                if (value.user_refere != -1) {
+                                    axios.get('/api/member/' + value.user_refere).then((response) => {
+                                        this.users[index].linked_state = response.data.member_status.state.toUpperCase()
+                                        this.users[index].linked = response.data.member_id
+                                        this.users[index].user_refere = "[" + response.data.member_status.state.toUpperCase() + "] " + response.data.member_name + " " + response.data.member_surname
+                                    })
+                                }
+                            })
+                        }).catch(
+                            err => {
+                                this.errors = err.response.data.errors
+                                console.log(this.errors)
+                            }
+                        )
+                    }
+                }
+            },
+            created() {
+                this.check()
+            },
+
+        })
+    </script>
+
+    <%- include("./layout/footer.ejs") %>

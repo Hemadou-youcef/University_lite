@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" type="text/css" href="/style/style.css" />
+    <link rel="icon" href="/image/favicon.png">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="/style/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <title>UNIVERSITY</title>
+</head>
+
+<body>
+
+    <v-app id="app">
+        <header>
+            <v-app-bar color="blue" flat app>
+                <v-app-bar-nav-icon @click="drawered = !drawered"></v-app-bar-nav-icon>
+
+                <v-toolbar-title class="white--text font-weight-bold">{{ page_name }}</v-toolbar-title>
+
+                <v-spacer></v-spacer>
+
+
+
+                <v-btn icon>
+                    <v-icon>mdi-magnify</v-icon>
+                </v-btn>
+                <div  v-if="logged">
+                    <v-chip class="ma-2 font-weight-bold" color="white" outlined label v-if="info.role == 'SUPER ADMIN'"
+                    style="float:right">
+                        <v-icon left>
+                            mdi-shield-crown-outline
+                        </v-icon>
+                        ADMIN
+                    </v-chip>
+                    <v-chip class="ma-2 font-weight-bold" color="white" outlined label v-else-if="info.role == 'TEACHER'"
+                    style="float:right">
+                        <v-icon left>
+                            mdi-book-open-page-variant
+                        </v-icon>
+                        TEACHER
+                    </v-chip>
+                    <v-chip class="ma-2 font-weight-bold" color="white" outlined label  v-else-if="info.role == 'STUDENT'"
+                    style="float:right">
+                        <v-icon left>
+                            mdi-account-school
+                        </v-icon>
+                        STUDENT
+                    </v-chip>
+                    <v-chip class="ma-2 font-weight-bold" color="white" outlined label v-else-if="info.role == 'GUEST'"
+                    style="float:right">
+                        <v-icon left>
+                            mdi-account
+                        </v-icon>
+                        GUEST
+                    </v-chip>
+                    <v-chip class="ma-2 white--text font-weight-bold"  color="blue" label>
+                        {{ info.firstname.toUpperCase() + " " + info.lastname.toUpperCase()}}
+                    </v-chip>
+                </div>
+                
+                
+                
+                <v-btn v-if="logged" @click="logout" icon>
+                    <v-icon color="white">mdi-export</v-icon>
+                </v-btn>
+                <div v-else>
+                    <v-btn @click="goto('/register')" color="primary">
+                        Register
+                    </v-btn>
+                    <v-btn @click="goto('/login')" color="primary">
+                        login
+                    </v-btn>
+                </div>
+
+
+            </v-app-bar>
+            <v-navigation-drawer class="blue" width="260" v-model="drawered" dark app>
+                <v-card flat class="pa-2 pt-4 blue darken-2 white--text font-weight-bold rounded-0" height="64px">
+                    <v-icon color="white" large>
+                        mdi-school
+                    </v-icon>
+                    <span class="ml-5 font-weight-bold" :class="`text-subtitle-${(MiniLogo)?'2':'1'}`">
+                        UNIVERSITY
+                    </span>
+
+                </v-card>
+                <v-list class="pt-0">
+                    <v-list-item v-for="item in items" :class="(item.selected)?'primary darken-1':''" :key="item.title" link v-on:click="goto(item.url)">
+                        <v-list-item-icon>
+                            <v-icon>{{ item.icon }}</v-icon>
+                        </v-list-item-icon>
+
+                        <v-list-item-content>
+                            <v-list-item-title>{{ item.title }}</v-list-item-title>
+                        </v-list-item-content>
+                    </v-list-item>
+                </v-list>
+
+                <!-- <template v-slot:append>
+                        <div class="pa-2">
+                        <v-btn block>
+                            Logout
+                        </v-btn>
+                        </div>
+                    </template> -->
+            </v-navigation-drawer>
+        </header>

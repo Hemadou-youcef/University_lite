@@ -1,0 +1,232 @@
+<%- include("./layout/header.ejs");  %>
+    <v-main >
+        <v-container>
+            <v-card
+                    :color="'#385F73'"
+                    dark
+                >
+                    <v-card-title class="text-h5" >
+                        <h4>STUDENT ID: {{ complaint.from}}</h4>
+                    </v-card-title>
+                    <v-card-subtitle class="pb-0" color="white">
+                        <p>Subject Name: {{ complaint.subject.toUpperCase() }}</p>
+                        <v-divider class="mb-5"></v-divider>
+                        <span style="color:white;font-weight:bold;font-size: 20px;">{{ complaint.content.toUpperCase() }}</span>
+                        <v-divider class="mt-5"></v-divider>
+                    </v-card-subtitle>
+                    <v-card-actions>
+                        <v-btn
+                            :loading="loading"
+                            class="ma-1"
+                            color="green"
+                            @click="delte"
+                            :loading="loading"
+                        >
+                            <v-icon left>
+                                mdi-pen
+                            </v-icon>
+                            EDIT
+                        </v-btn>
+                        <v-btn
+                            :loading="loading"
+                            class="ma-1"
+                            color="blue"
+                            @click="delte"
+                            :loading="loading"
+                        >
+                            <v-icon left>
+                                mdi-check
+                            </v-icon>
+                            DONE
+                        </v-btn>
+                    </v-card-actions>
+            </v-card>
+            <v-card
+                    class="mt-5"            
+                    :color="'#385F73'"
+                    dark
+                >
+                    <v-card-subtitle class="pb-5" color="white">
+                        <div
+                            class="mb-5"
+                            v-for="(reply_, i) in complaint.reply"
+                            :key="i"
+                        >
+                        
+                            <span v-if="reply_.split(']:')[0].toLowerCase().includes('teacher')" class="font-weight-bold white--text pa-2 mt-3 mb-5 mr-2 rounded-lg" style="font-size: 15px;background-color: rgb(76, 175, 80);">
+                                {{ reply_.split("]:")[0] + "]:" }}
+                            </span>
+                            <span v-else class="font-weight-bold white--text pa-2 mt-3 mb-5 mr-2 rounded-lg" style="font-size: 15px;background-color: rgb(33, 150, 243);">
+                                {{ reply_.split("]:")[0] + "]:" }}
+                            </span>
+                            <span style="color:rgb(255, 255, 255);font-size: 20px;">
+                                {{ reply_.split("]:")[1] }}
+                            </span>
+                            <v-divider class="mt-5"></v-divider>
+                        </div>
+                        
+                    </v-card-subtitle>
+                    <v-card-actions>
+                        <v-text-field
+                        class="pa-2"
+                        v-model="reply.content"
+                        label="Message"
+                        v-on:keyup.enter="send_reply"
+                        hide-details
+                        outlined
+                        required
+                        ></v-text-field>
+                        <v-btn
+                            :loading="loading"
+                            class="ma-1 pa-5"
+                            color="blue lighten-3"
+                            @click="send_reply"
+                            :loading="loading"
+                        >
+                            <v-icon left>
+                                mdi-send
+                            </v-icon>
+                            SEND
+                        </v-btn>
+                    </v-card-actions>
+            </v-card>
+        </v-container>
+    </v-main>
+    <v-footer padless>
+        <v-col
+        class="text-center"
+        cols="12"
+        >
+        {{ new Date().getFullYear() }} — <strong>By Youcef Hemadou</strong>
+        </v-col>
+    </v-footer>
+</v-app>
+    <script src="/script/vue.min.js"></script>
+    <script src="/script/vuetify.min.js"></script>
+    <script src="/script/axios.min.js"></script>
+
+    <script>
+        // import CardInfo from "components/CardInfo"
+        // var CardInfo = require("./components/CardInfo")
+        var vm =  new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data:{
+                page_name : "COMPLAINT",
+                logged : false,
+                drawered: true,
+                loading:false,
+                info:{},
+                items: [],
+                complaint: {},
+                reply:{
+                    complaint_id:0,
+                    sender:"",
+                    content:""
+                }
+            },
+            computed:{
+                styleColor(){
+                return 'background-image: linear-gradient(270deg,#' + this.secondColor +  ' ,#' + this.firstColor +  ')';
+                }
+
+            },
+            methods: {
+                goto(url){
+                    window.location.href = url
+                },
+                logout() {
+                    localStorage.removeItem("token");
+                    window.location.href = '/login'
+                },
+                check(){
+                    if (localStorage.getItem("token") === null) {
+                        window.location.href = '/login'
+                    }else{
+                        axios.defaults.headers.post['x-access-token'] = localStorage.getItem("token")
+                        axios.defaults.headers.common['x-access-token'] = localStorage.getItem("token")
+                        axios.get('/api/user/me').then((res) => {
+                                // console.log(res.data)
+                                this.info = res.data
+                                this.reply.sender = this.info.role
+                                
+                                this.logged = true
+                                this.items.push(
+                                    { title: 'Dashboard', icon: 'mdi-view-dashboard', url:"/",selected:false},
+                                    { title: 'Account', icon: 'mdi-badge-account-horizontal-outline', url:"/profile",selected:false},
+                                )
+                                if(res.data.user_refere != -1){
+                                    if(res.data.role.toLowerCase() == "super admin"){
+                                        this.items.push(
+                                            { title: 'Users', icon: 'mdi-account-supervisor-outline', url:"/users",selected:false},
+                                            { title: 'Members', icon: 'mdi-account-group-outline', url:"/members",selected:false},
+                                        )
+                                    }
+                                    this.items.push(
+                                        { title: 'Complaints', icon: 'mdi-alert-circle', url:"/complaints",selected:true},
+                                        { title: 'Marks', icon: 'mdi-format-text-variant-outline', url:"/marks",selected:false}
+                                    )
+                                }else{
+                                    window.location.href = '/'
+                                }
+                                let complaint_id = <%= id  %>
+                                axios.get('/api/complaints/' + complaint_id + '/' + res.data.role.toLowerCase()).then((response) => {
+                                    this.complaint = response.data[0]
+                                    this.reply.complaint_id = response.data[0].id
+                                    if(this.info.user_refere == this.complaint.from){
+                                        this.reply.sender = "STUDENT"
+                                    }else if(this.info.user_refere == this.complaint.to){
+                                        this.reply.sender = "TEACHER"
+                                    }
+                                }).catch(
+                                    err => {
+                                        this.errors = err.response.data.errors
+                                        console.log(this.errors)
+                                    }
+                                )
+                        }).catch(
+                            err => {
+                                this.errors = err.response.data.errors
+                                console.log(this.errors)
+                            }
+                        )
+                        
+                    }
+                },
+                send_reply() {
+                    this.loading = true
+                    
+                    axios.post('/api/complaints/reply', this.reply).then((res) => {
+                        this.loading = false
+                        if (res.data.ok == 1) {
+                            let url = '/api/complaints/' + this.reply.complaint_id + '/' + this.reply.sender.toLowerCase()
+                            axios.get(url).then((response) => {
+                                    this.complaint = response.data[0]
+                                    this.reply.complaint_id = response.data[0].id
+                                    this.reply.content = ""
+                                }).catch(
+                                    err => {
+                                        this.errors = err.response.data.errors
+                                        console.log(this.errors)
+                                }
+                            )
+                        }else{
+
+                        }
+                    }).catch(
+                        err => {
+                            this.errors = err.response.data.errors
+                            console.log(this.errors)
+                        }
+                    )
+                    
+                }
+            },
+            created() {
+                this.check()
+            },
+
+        })
+    </script>
+    
+<%- include("./layout/footer.ejs") %>

@@ -1,0 +1,160 @@
+<%- include("./layout/header.ejs");  %>
+    <v-main >
+        <v-container>
+            <v-row class="mb-0 pa-5">
+                <v-col>
+                    <v-card  elevation="5" class="rounded-lg"
+                    >
+                        <v-sheet
+                            class="ma-0  pb-0"
+                            :class="{'pa-3':(mode != 'simple')}"
+                            :style="styleColor"
+                        >
+                        <span  v-if="mode != 'simple'" class="white--text font-weight-bold">
+                            {{ message }}
+                        </span>
+                        <v-list color="transparent" class="white-text ">
+                            <v-list-item>
+                            <v-list-item-content>
+                                <v-list-item-title>
+                                <span v-if="mode == 'simple'" class="white--text font-weight-bold text-h5">
+                                    {{ message }}
+                                </span>
+                                <v-icon v-else color="white" size="50">
+                                    {{ icon }}
+                                </v-icon>
+                                </v-list-item-title>
+                            </v-list-item-content>
+                            <v-list-item-action>
+                                <v-list-item-title class="white--text text-h3 font-weight-bold">
+                                    {{ number }}
+                                </v-list-item-title>
+                            </v-list-item-action>
+                            </v-list-item>
+                        </v-list>
+                        </v-sheet>
+                    </v-card>
+                </v-col>
+                <v-col>
+                    <v-card  elevation="5" class="rounded-lg"
+                    >
+                        <v-sheet
+                            class="ma-0  pb-0"
+                            :class="{'pa-3':(mode != 'simple')}"
+                            :style="styleColor"
+                        >
+                        <span  v-if="mode != 'simple'" class="white--text font-weight-bold">
+                            {{ message }}
+                        </span>
+                        <v-list color="transparent" class="white-text ">
+                            <v-list-item>
+                            <v-list-item-content>
+                                <v-list-item-title>
+                                <span v-if="mode == 'simple'" class="white--text font-weight-bold text-h5">
+                                    {{ message }}
+                                </span>
+                                <v-icon v-else color="white" size="50">
+                                    {{ icon }}
+                                </v-icon>
+                                </v-list-item-title>
+                            </v-list-item-content>
+                            <v-list-item-action>
+                                <v-list-item-title class="white--text text-h3 font-weight-bold">
+                                    {{ number }}
+                                </v-list-item-title>
+                            </v-list-item-action>
+                            </v-list-item>
+                        </v-list>
+                        </v-sheet>
+                    </v-card>
+                </v-col>
+            </v-row>
+        </v-container>
+    </v-main>
+    <v-footer padless>
+        <v-col
+        class="text-center"
+        cols="12"
+        >
+        {{ new Date().getFullYear() }} — <strong>By Youcef Hemadou</strong>
+        </v-col>
+    </v-footer>
+</v-app>
+    <script src="script/vue.min.js"></script>
+    <script src="script/vuetify.min.js"></script>
+    <script src="script/axios.min.js"></script>
+
+    <script>
+        // import CardInfo from "components/CardInfo"
+        // var CardInfo = require("./components/CardInfo")
+        var vm =  new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data:{
+                page_name : "MINI-CONTROLL",
+                logged : false,
+                info:{},
+                drawered: true,
+                items: [],
+                message:"Today Appointments",
+                number: 2,
+                icon: "mdi-calendar",
+                firstColor: "1976d2",
+                secondColor: "33ccff",
+                mode:"simple"
+            },
+            computed:{
+                styleColor(){
+                return 'background-image: linear-gradient(270deg,#' + this.secondColor +  ' ,#' + this.firstColor +  ')';
+                }
+
+            },
+            methods: {
+                goto(url){
+                    window.location.href = url
+                },
+                logout() {
+                    localStorage.removeItem("token");
+                    window.location.href = '/login'
+                }
+            },
+            created() {
+                if (localStorage.getItem("token") === null) {
+                    window.location.href = '/login'
+                }else{
+                    axios.defaults.headers.post['x-access-token'] = localStorage.getItem("token")
+                    axios.defaults.headers.common['x-access-token'] = localStorage.getItem("token")
+                    axios.get('/api/user/me').then((res) => {
+                            console.log(res.data)
+                            this.info = res.data
+                            this.logged = true
+                            this.items.push(
+                                { title: 'Dashboard', icon: 'mdi-view-dashboard', url:"/",selected:true},
+                                { title: 'Account', icon: 'mdi-badge-account-horizontal-outline', url:"/profile",selected:false},
+                            )
+                            if(res.data.role.toLowerCase() == "super admin"){
+                                this.items.push(
+                                    { title: 'Users', icon: 'mdi-account-supervisor-outline', url:"/users",selected:false},
+                                    { title: 'Members', icon: 'mdi-account-group-outline', url:"/members",selected:false},
+                                )
+                            }
+                            if(res.data.user_refere != -1){
+                                this.items.push(
+                                    { title: 'Complaints', icon: 'mdi-alert-circle', url: "/complaints" },
+                                    { title: 'Marks', icon: 'mdi-format-text-variant-outline', url: "/marks", selected: false }
+                                )
+                            }
+                    }).catch(
+                        err => {
+                            this.errors = err.response.data.errors
+                            console.log(this.errors)
+                            window.location.href = '/login'
+                        }
+                    )
+                }
+            },
+
+        })
+    </script>
+    
+<%- include("./layout/footer.ejs") %>

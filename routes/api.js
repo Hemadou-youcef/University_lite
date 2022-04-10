@@ -1,12 +1,13 @@
 const express = require("express")
-const parser = require("body-parser");
-const mongoose = require("mongoose")
+const parser = require("body-parser")
 
 // CONTROLLER REQUIRE LIST
 const user_controller = require("./../controllers/UserController")
 const member_controller = require("./../controllers/MemberController")
 const complaint_controller = require("./../controllers/ComplaintController")
 
+//MIDDLEWARE
+const auth = require("./../middleware/auth");
 
 const app = express()
 app.use(parser.urlencoded({ extended: true }))
@@ -61,60 +62,65 @@ app.use(parser.json())
 */
 
 // PV FUNCTIONS
-app.get("/api/pv/:id",(req,res)=>{
+app.get("/api/pv/:id",auth ,(req,res)=>{
     // GET PV
     res.send({
         "response":"Sorry you don't have access, that all we know"
     })
 })
 // MARK FUNCTIONS
-app.get("/api/mark/:id/:year/:season/:subject",(req,res)=>{
+app.get("/api/mark/:id/:year/:season/:subject",auth ,(req,res)=>{
     // SHOW MARK BY SUBJECT
-    member_controller.get_mark(res,req.params.id,req.params.year,req.params.season,req.params.subject)
+    member_controller.get_mark(res,req.body,req.params.id,req.params.year,req.params.season,req.params.subject)
 })
 
-app.post("/api/mark",(req,res)=>{
+app.post("/api/mark",auth ,(req,res)=>{
     // ADD MARK BY STUDENTS ID
     member_controller.add_mark(res,req.body)
 })
-app.put("/api/mark/:id",(req,res)=>{
+app.put("/api/mark/:id",auth ,(req,res)=>{
     // EDIT MARK BY USER ID
     member_controller.edit_mark(res,req.params.id,req.body)
 })
-app.delete("/api/mark/:id",(req,res)=>{
+app.delete("/api/mark/:id",auth ,(req,res)=>{
     // DELETE MARK BY ID
     member_controller.delete_mark(res,req.params.id,req.body)
 })
 
 // COMPLAINTS FUNCIOTN
-app.get("/api/complaints/:id",(req,res)=>{
+app.get("/api/complaints/:id/:from",auth ,(req,res)=>{
     // SHOW MARK BY SUBJECT
-    complaint_controller.show_complaint(res,req.params.id)
+    complaint_controller.show_complaint(res,req.params.id,req.params.from,req.body)
 })
-app.post("/api/complaints",(req,res)=>{
+app.post("/api/complaints",auth ,(req,res)=>{
     // ADD COMPLAINTS
     complaint_controller.add_complaint(res,req.body)
 })
-app.post("/api/complaints/reply",(req,res)=>{
+app.post("/api/complaints/reply",auth ,(req,res)=>{
     // ADD COMPLAINTS REPLY
     complaint_controller.add_reply(res,req.body)
 })
-app.put("/api/complaints/:id",(req,res)=>{
+app.put("/api/complaints/:id",auth ,(req,res)=>{
     // GET COMPLAINTS BY STUDENTS ID
     complaint_controller.edit_complaint(res,req.params.id,req.body)
 })
-app.delete("/api/complaints/:id",(req,res)=>{
+app.delete("/api/complaints/:id",auth ,(req,res)=>{
     // DELETE COMPLAINTS BY ID
-    complaint_controller.delete_complaint(res,req.params.id)
+    complaint_controller.delete_complaint(res,req.params.id,req.body)
 })
 
+
+app.get("/api/member/:id",auth ,(req,res)=>{
+    // SHOW STUDENTS INFO
+    member_controller.show_member(res,req.params.id,"member",req.body)
+})
 
 // STUDENTS FUNCTIONS
-app.get("/api/student/:id",(req,res)=>{
+app.get("/api/student/:id",auth ,(req,res)=>{
     // SHOW STUDENTS INFO
-    member_controller.show_member(res,req.params.id,"student")
+    member_controller.show_member(res,req.params.id,"student",req.body)
 })
-app.post("/api/student",(req,res)=>{
+app.post("/api/student",auth ,(req,res)=>{
     // ADD STUDENTS
     req.body.status = {
         "state":"student",
@@ -131,21 +137,21 @@ app.post("/api/student",(req,res)=>{
     ]
     member_controller.add_member(res,req.body)
 })
-app.put("/api/student/:id",(req,res)=>{
+app.put("/api/student/:id",auth ,(req,res)=>{
     // EDIT STUDENTS BY ID
     member_controller.edit_member(res,req.params.id,req.body)
 })
-app.delete("/api/student/:id",(req,res)=>{
+app.delete("/api/student/:id",auth ,(req,res)=>{
     // DELETE STUDENTS BY ID
-    member_controller.delete_member(res,req.params.id)
+    member_controller.delete_member(res,req.params.id,req.body)
 })
 
 // TEACHERS FUNCTIONS
-app.get("/api/teacher/:id",(req,res)=>{
+app.get("/api/teacher/:id",auth ,(req,res)=>{
     // SHOW TEACHERS INFO
-    member_controller.show_member(res,req.params.id,"teacher")
+    member_controller.show_member(res,req.params.id,"teacher",req.body)
 })
-app.post("/api/teacher",(req,res)=>{
+app.post("/api/teacher",auth ,(req,res)=>{
     // ADD TEACHERS
     req.body.status = {
         "state":"teacher",
@@ -156,28 +162,37 @@ app.post("/api/teacher",(req,res)=>{
 
     member_controller.add_member(res,req.body)
 })
-app.put("/api/teacher/:id",(req,res)=>{
+app.put("/api/teacher/:id",auth ,(req,res)=>{
     // EDIT TEACHERS BY ID
     member_controller.edit_member(res,req.params.id,req.body)
 })
-app.delete("/api/teacher/:id",(req,res)=>{
+app.delete("/api/teacher/:id",auth ,(req,res)=>{
     // DELETE TEACHERS BY ID
-    member_controller.delete_member(res,req.params.id)
+    member_controller.delete_member(res,req.params.id,req.body)
 })
 
+
+app.get("/api/member/me",auth ,(req,res)=>{
+    // DELETE TEACHERS BY ID
+    member_controller.show_member(res,"me","teacher",req.body)
+})
 
 // USER FUNCTIONS
-app.get("/api/user/:id",(req,res)=>{
+app.get("/api/user/:id",auth ,(req,res)=>{
     // SHOW USER BY ID
-    user_controller.show_users(res,req.params.id)
+    user_controller.show_users(res,req.params.id,req.body)
 })
-app.put("/api/user/:id",(req,res)=>{
+app.put("/api/link/:id",auth ,(req,res)=>{
     // EDIT USER BY ID
-    user_controller.edit_user(res,req.params.id,req.body)
+    user_controller.link_account(res,req.params.id,req.body)
 })
-app.delete("/api/user/:id",(req,res)=>{
+app.put("/api/grant/:id",auth ,(req,res)=>{
+    // EDIT USER BY ID
+    user_controller.grant_permission(res,req.params.id,req.body)
+})
+app.delete("/api/user/:id",auth ,(req,res)=>{
     // DELETE USER BY ID
-    user_controller.delete_user(res,req.params.id)
+    user_controller.delete_user(res,req.params.id,req.body)
 })
 
 app.post("/api/register",(req,res)=>{
@@ -187,18 +202,18 @@ app.post("/api/register",(req,res)=>{
 
 app.post("/api/login",(req,res)=>{
     // ADD USER BY ID
-    user_controller.register(res,req.body)
+    user_controller.login(res,req.body)
 })
 
 
 
 // NO REGISTERED API
-app.use((req,res)=>{
-    // 404 NOT FOUND
-    res.status(404)
-    res.send({
-        "response":"Sorry you don't have access, that all we know"
-    })
-})
+// app.use((req,res)=>{
+//     // 404 NOT FOUND
+//     res.status(404)
+//     res.send({
+//         "response":"Sorry you don't have access, that all we know"
+//     })
+// })
 
 module.exports = app;
