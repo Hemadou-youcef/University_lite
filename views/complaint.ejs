@@ -1,187 +1,286 @@
-<%- include("./layout/header.ejs");  %>
-    <v-main >
+<%- include("./layout/header.ejs"); %>
+    <v-main>
         <v-container>
-            <v-card
-                    :color="'#385F73'"
-                    dark
-                >
-                    <v-card-title class="text-h5" >
-                        <h4>STUDENT ID: {{ complaint.from}}</h4>
-                    </v-card-title>
-                    <v-card-subtitle class="pb-0" color="white">
-                        <p>Subject Name: {{ complaint.subject.toUpperCase() }}</p>
-                        <v-divider class="mb-5"></v-divider>
-                        <span style="color:white;font-weight:bold;font-size: 20px;">{{ complaint.content.toUpperCase() }}</span>
-                        <v-divider class="mt-5"></v-divider>
-                    </v-card-subtitle>
-                    <v-card-actions>
-                        <v-btn
-                            :loading="loading"
-                            class="ma-1"
-                            color="green"
-                            @click="delte"
-                            :loading="loading"
-                        >
-                            <v-icon left>
-                                mdi-pen
-                            </v-icon>
-                            EDIT
-                        </v-btn>
-                        <v-btn
-                            :loading="loading"
-                            class="ma-1"
-                            color="blue"
-                            @click="delte"
-                            :loading="loading"
-                        >
-                            <v-icon left>
-                                mdi-check
-                            </v-icon>
-                            DONE
-                        </v-btn>
-                    </v-card-actions>
+            <v-card :color="'#385F73'" dark>
+                <v-card-title class="text-h5">
+                    <h4>{{ complaint.name.toUpperCase() }}</h4>
+                </v-card-title>
+                <v-card-subtitle class="pb-0" color="white">
+                    <p>Subject Name: {{ complaint.subject.toUpperCase() }}</p>
+                    <v-divider class="mb-5"></v-divider>
+                    <span style="color:white;font-weight:bold;font-size: 20px;"
+                        v-for="(line) in complaint.content.split('\n')">
+                        {{ line.toUpperCase()}} <br/>
+                    </span>
+                    <v-divider class="mt-5"></v-divider>
+                </v-card-subtitle>
+                <v-card-actions v-if="info.role == 'STUDENT'">
+                    <v-btn :loading="loading" class="ma-1" color="green" @click="edit_complaint_form">
+                        <v-icon left>
+                            mdi-pen
+                        </v-icon>
+                        EDIT
+                    </v-btn>
+                    <v-btn :loading="loading" class="ma-1" color="blue" @click="delete_complaint_form">
+                        <v-icon left>
+                            mdi-check
+                        </v-icon>
+                        DONE
+                    </v-btn>
+                </v-card-actions>
             </v-card>
-            <v-card
-                    class="mt-5"            
-                    :color="'#385F73'"
-                    dark
-                >
-                    <v-card-subtitle class="pb-5" color="white">
-                        <div
-                            class="mb-5"
-                            v-for="(reply_, i) in complaint.reply"
-                            :key="i"
-                        >
-                        
-                            <span v-if="reply_.split(']:')[0].toLowerCase().includes('teacher')" class="font-weight-bold white--text pa-2 mt-3 mb-5 mr-2 rounded-lg" style="font-size: 15px;background-color: rgb(76, 175, 80);">
-                                {{ reply_.split("]:")[0] + "]:" }}
-                            </span>
-                            <span v-else class="font-weight-bold white--text pa-2 mt-3 mb-5 mr-2 rounded-lg" style="font-size: 15px;background-color: rgb(33, 150, 243);">
-                                {{ reply_.split("]:")[0] + "]:" }}
-                            </span>
-                            <span style="color:rgb(255, 255, 255);font-size: 20px;">
-                                {{ reply_.split("]:")[1] }}
-                            </span>
-                            <v-divider class="mt-5"></v-divider>
-                        </div>
-                        
-                    </v-card-subtitle>
-                    <v-card-actions>
-                        <v-text-field
-                        class="pa-2"
-                        v-model="reply.content"
-                        label="Message"
-                        v-on:keyup.enter="send_reply"
-                        hide-details
-                        outlined
-                        required
-                        ></v-text-field>
-                        <v-btn
-                            :loading="loading"
-                            class="ma-1 pa-5"
-                            color="blue lighten-3"
-                            @click="send_reply"
-                            :loading="loading"
-                        >
-                            <v-icon left>
-                                mdi-send
-                            </v-icon>
-                            SEND
-                        </v-btn>
-                    </v-card-actions>
+            <v-card class="mt-5" :color="'#385F73'" dark>
+                <v-card-subtitle class="pb-5" color="white">
+                    <div class="mb-5" v-for="(reply_, i) in complaint.reply" :key="i">
+
+                        <span class="font-weight-bold white--text pa-2 mt-3 mb-5 mr-2 rounded-lg"
+                            style="font-size: 15px;">
+                            {{ reply_.split("]:")[0] + "]" }}
+                        </span>
+                        <span v-if="reply_.split(']:')[0].toLowerCase().includes('teacher')"
+                            style="color:rgb(13, 218, 105);font-size: 18px;">
+                            {{ reply_.split("]:")[1] }}
+                        </span>
+                        <span v-else style="color:rgb(66, 222, 250);font-size: 18px;">
+                            {{ reply_.split("]:")[1] }}
+                        </span>
+                        <!-- <v-divider class="mt-5"></v-divider> -->
+                    </div>
+
+                </v-card-subtitle>
+                <v-card-actions>
+                    <v-text-field class="pa-2" v-model="reply.content" label="Message" v-on:keyup.enter="send_reply"
+                        hide-details outlined required></v-text-field>
+                    <v-btn :loading="loading" class="ma-1 pa-5" color="transparent" elevation="0" @click="send_reply"
+                        :loading="loading">
+                        <v-icon left>
+                            mdi-send
+                        </v-icon>
+                        SEND
+                    </v-btn>
+                </v-card-actions>
             </v-card>
         </v-container>
+        <v-dialog width="600" v-if="editcomplaint" v-model="editcomplaint">
+            <v-card style="overflow: hidden !important;" width="600" class="pa-5">
+                <v-list class="my-2 pa-0">
+                    <h3>ADD COMPLAINT</h3><br>
+                    <v-row>
+                        <v-col cols="12">
+                            <v-text-field v-model="complaint.subject.toUpperCase()" :rules="requireField"
+                                label="SUBJECT" class="pa-0" background-color="white" :disabled="true" hide-details
+                                outlined required>
+                            </v-text-field>
+                        </v-col>
+                        <v-col>
+                            <v-textarea outlined auto-grow clearable hide-details background-color="white"
+                                name="input-7-4" label="content" prepend-icon="mdi-alert-box-outline"
+                                v-model="complaint.content" :rules="requireField" class="mb-2"></v-textarea>
+                        </v-col>
+
+                    </v-row>
+
+                </v-list>
+                <div class="text-center">
+                    <v-btn :loading="editComplaintLoading" class="mt-2 pa-5 white--text" color="green"
+                        @click="edit_complaint" large widht="100%">
+                        <v-icon left>
+                            mdi-pen
+                        </v-icon>
+                        EDIT COMPLAINT
+                    </v-btn>
+                </div>
+
+            </v-card>
+        </v-dialog>
+        <v-dialog width="400" v-model="deletecomplaint">
+            <v-card style="overflow: hidden !important;" width="400" height="150">
+                <div class="text-caption font-weight-bold text-center pt-6 blue--text" style="font-size: 16px !important; ">
+                    DONE???
+                </div>
+
+                <v-card-text>
+                    <v-row class="mt-5" justify="center">
+
+                        <v-spacer></v-spacer>
+
+                        <v-tooltip bottom>
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-btn @click="delete_complaint" :loading="Deleteloading" v-on="on" v-bind="attrs"
+                                    outlined icon large color="red">
+                                    <v-icon color="red">mdi-check</v-icon>
+                                </v-btn>
+
+                            </template>
+                            <span>Are you sure!</span>
+                        </v-tooltip>
+
+                        <v-spacer></v-spacer>
+                        <v-tooltip bottom>
+
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-btn @click="deletecomplaint = false" v-on="on" v-bind="attrs" outlined icon
+                                    large color="green">
+                                    <v-icon color="green">mdi-close</v-icon>
+                                </v-btn>
+
+                            </template>
+                            <span>Cancel</span>
+
+                        </v-tooltip>
+
+                        <v-spacer></v-spacer>
+
+                    </v-row>
+                </v-card-text>
+
+
+            </v-card>
+        </v-dialog>
+        <v-snackbar :value="snackbar" :color="color">
+            {{ message }}
+            <template v-slot:action="{ attrs }">
+                <v-btn color="white" text v-bind="attrs" @click="snackbar = false">
+                    Close
+                </v-btn>
+            </template>
+        </v-snackbar>
     </v-main>
     <v-footer padless>
-        <v-col
-        class="text-center"
-        cols="12"
-        >
-        {{ new Date().getFullYear() }} — <strong>By Youcef Hemadou</strong>
+        <v-col class="text-center" cols="12">
+            {{ new Date().getFullYear() }} — <strong>By Youcef Hemadou</strong>
         </v-col>
     </v-footer>
-</v-app>
-    <script src="/script/vue.min.js"></script>
-    <script src="/script/vuetify.min.js"></script>
-    <script src="/script/axios.min.js"></script>
+    </v-app>
+    
 
     <script>
         // import CardInfo from "components/CardInfo"
         // var CardInfo = require("./components/CardInfo")
-        var vm =  new Vue({
+        var vm = new Vue({
             el: '#app',
             vuetify: new Vuetify(),
-            data:{
-                page_name : "COMPLAINT",
-                logged : false,
+            data: {
+                page_name: "COMPLAINT",
+                logged: false,
                 drawered: true,
-                loading:false,
-                info:{},
+                loading: false,
+                snackbar: false,
+                editComplaintLoading: false,
+                Deleteloading:false,
+                deletecomplaint:false,
+                message: "",
+                color: "",
+                editcomplaint: false,
+                info: {},
                 items: [],
                 complaint: {},
-                reply:{
-                    complaint_id:0,
-                    sender:"",
-                    content:""
+                reply: {
+                    complaint_id: 0,
+                    sender: "",
+                    content: ""
                 }
             },
-            computed:{
-                styleColor(){
-                return 'background-image: linear-gradient(270deg,#' + this.secondColor +  ' ,#' + this.firstColor +  ')';
+            computed: {
+                styleColor() {
+                    return 'background-image: linear-gradient(270deg,#' + this.secondColor + ' ,#' + this.firstColor + ')';
                 }
 
             },
             methods: {
-                goto(url){
+                goto(url) {
                     window.location.href = url
                 },
                 logout() {
                     localStorage.removeItem("token");
                     window.location.href = '/login'
                 },
-                check(){
+                delete_complaint_form(){
+                    this.deletecomplaint = true
+                },
+                delete_complaint(){
+                    this.Deleteloading = true
+                    axios.delete("/api/complaints/" + this.complaint.id).then((res) => {
+                        this.Deleteloading = false
+                        if (res.data.ok == 1) {
+                            this.color = "success"
+                            this.message = res.data.response
+                            this.snackbar = true
+                            this.deletecomplaint = false
+                            window.location.href = "/complaints"
+                        } else {
+                            this.color = "error"
+                            this.message = res.data.response
+                            this.snackbar = true
+                        }
+                    }).catch((err) => {
+
+                    })
+                },
+                edit_complaint_form() {
+                    this.editcomplaint = true
+                },
+                edit_complaint() {
+                    this.editComplaintLoading = true
+                    axios.put("/api/complaints/" + this.complaint.id, { content: this.complaint.content }).then((res) => {
+                        this.editComplaintLoading = false
+                        if (res.data.ok == 1) {
+                            this.color = "success"
+                            this.message = res.data.response
+                            this.snackbar = true
+                            this.editcomplaint = false
+                        } else {
+                            this.color = "error"
+                            this.message = res.data.response
+                            this.snackbar = true
+                        }
+                    }).catch((err) => {
+
+                    })
+                },
+                check() {
                     if (localStorage.getItem("token") === null) {
                         window.location.href = '/login'
-                    }else{
+                    } else {
                         axios.defaults.headers.post['x-access-token'] = localStorage.getItem("token")
                         axios.defaults.headers.common['x-access-token'] = localStorage.getItem("token")
                         axios.get('/api/user/me').then((res) => {
-                                // console.log(res.data)
-                                this.info = res.data
-                                this.reply.sender = this.info.role
-                                
-                                this.logged = true
-                                this.items.push(
-                                    { title: 'Dashboard', icon: 'mdi-view-dashboard', url:"/",selected:false},
-                                    { title: 'Account', icon: 'mdi-badge-account-horizontal-outline', url:"/profile",selected:false},
-                                )
-                                if(res.data.user_refere != -1){
-                                    if(res.data.role.toLowerCase() == "super admin"){
-                                        this.items.push(
-                                            { title: 'Users', icon: 'mdi-account-supervisor-outline', url:"/users",selected:false},
-                                            { title: 'Members', icon: 'mdi-account-group-outline', url:"/members",selected:false},
-                                        )
-                                    }
+                            // console.log(res.data)
+                            this.info = res.data
+                            this.reply.sender = this.info.role
+
+                            this.logged = true
+                            this.items.push(
+                                { title: 'Dashboard', icon: 'mdi-view-dashboard', url: "/", selected: false },
+                                { title: 'Account', icon: 'mdi-badge-account-horizontal-outline', url: "/profile", selected: false },
+                                { title: 'Coefficient', icon: 'mdi-calculator', url: "/coefficient", selected: false },
+                            )
+                            if (res.data.user_refere != -1) {
+                                if (res.data.role.toLowerCase() == "super admin") {
                                     this.items.push(
-                                        { title: 'Complaints', icon: 'mdi-alert-circle', url:"/complaints",selected:true},
-                                        { title: 'Marks', icon: 'mdi-format-text-variant-outline', url:"/marks",selected:false}
+                                        { title: 'Users', icon: 'mdi-account-supervisor-outline', url: "/users", selected: false },
+                                        { title: 'Members', icon: 'mdi-account-group-outline', url: "/members", selected: false },  
                                     )
-                                }else{
-                                    window.location.href = '/'
                                 }
-                                let complaint_id = <%= id  %>
+                                this.items.push(
+                                    { title: 'Complaints', icon: 'mdi-alert-circle', url: "/complaints", selected: true },
+                                    { title: 'Marks', icon: 'mdi-format-text-variant-outline', url: "/marks", selected: false }
+                                )
+                            } else {
+                                window.location.href = '/'
+                            }
+                            let complaint_id = <%= id  %>
                                 axios.get('/api/complaints/' + complaint_id + '/' + res.data.role.toLowerCase()).then((response) => {
                                     this.complaint = response.data[0]
                                     this.reply.complaint_id = response.data[0].id
-                                    if(this.info.user_refere == this.complaint.from){
+                                    if (this.info.user_refere == this.complaint.from) {
                                         this.reply.sender = "STUDENT"
-                                    }else if(this.info.user_refere == this.complaint.to){
+                                    } else if (this.info.user_refere == this.complaint.to) {
                                         this.reply.sender = "TEACHER"
                                     }
                                 }).catch(
                                     err => {
-                                        this.errors = err.response.data.errors
-                                        console.log(this.errors)
+                                        window.location.href = '/404'
                                     }
                                 )
                         }).catch(
@@ -190,27 +289,27 @@
                                 console.log(this.errors)
                             }
                         )
-                        
+
                     }
                 },
                 send_reply() {
                     this.loading = true
-                    
+
                     axios.post('/api/complaints/reply', this.reply).then((res) => {
                         this.loading = false
                         if (res.data.ok == 1) {
                             let url = '/api/complaints/' + this.reply.complaint_id + '/' + this.reply.sender.toLowerCase()
                             axios.get(url).then((response) => {
-                                    this.complaint = response.data[0]
-                                    this.reply.complaint_id = response.data[0].id
-                                    this.reply.content = ""
-                                }).catch(
-                                    err => {
-                                        this.errors = err.response.data.errors
-                                        console.log(this.errors)
+                                this.complaint = response.data[0]
+                                this.reply.complaint_id = response.data[0].id
+                                this.reply.content = ""
+                            }).catch(
+                                err => {
+                                    this.errors = err.response.data.errors
+                                    console.log(this.errors)
                                 }
                             )
-                        }else{
+                        } else {
 
                         }
                     }).catch(
@@ -219,7 +318,7 @@
                             console.log(this.errors)
                         }
                     )
-                    
+
                 }
             },
             created() {
@@ -228,5 +327,5 @@
 
         })
     </script>
-    
-<%- include("./layout/footer.ejs") %>
+
+    <%- include("./layout/footer.ejs") %>

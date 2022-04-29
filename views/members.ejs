@@ -25,9 +25,9 @@
                                     <b>birth date: {{ new Date(student.member_birth).getFullYear() }}-{{new
                                         Date(student.member_birth).getMonth() + 1}}-{{new
                                         Date(student.member_birth).getDate() }}</b><br>
-                                    <b>Current year: {{ student.member_status.years + " " +
-                                        student.member_status.specialty + " " +
-                                        student.member_status.department}}</b><br>
+                                    <b>Current year: {{ student.member_status.years.toUpperCase() + " " +
+                                        student.member_status.specialty.toUpperCase() + " " +
+                                        student.member_status.department.toUpperCase()}}</b><br>
                                     <b>Student Gender: {{ student.member_gender.toUpperCase() }}</b>
                                 </v-card-subtitle>
                                 <v-card-actions>
@@ -242,9 +242,6 @@
         </v-col>
     </v-footer>
     </v-app>
-    <script src="script/vue.min.js"></script>
-    <script src="script/vuetify.min.js"></script>
-    <script src="script/axios.min.js"></script>
 
     <script>
         // import CardInfo from "components/CardInfo"
@@ -301,6 +298,7 @@
                     window.location.href = '/login'
                 },
                 add_member_form(state, number) {
+                    this.snackbar = false
                     this.add_members = true
                     this.edit_members = true
                     this.edited_member = {
@@ -348,21 +346,25 @@
                     })
                 },
                 edit_student(i) {
+                    this.snackbar = false
                     this.edited_member = this.students[i]
                     this.edited_member["gender_"] = (this.edited_member.member_gender == "male") ? 0 : 1
                     this.edit_members = true
                 },
                 edit_teacher(i) {
+                    this.snackbar = false
                     this.edited_member = this.teachers[i]
                     this.edited_member["gender_"] = (this.edited_member.member_gender == "male") ? 0 : 1
                     this.edit_members = true
                 },
 
                 delete_student(i) {
+                    this.snackbar = false
                     this.edited_member = this.students[i]
                     this.deletememberDialog = true
                 },
                 delete_teacher(i) {
+                    this.snackbar = false
                     this.edited_member = this.teachers[i]
                     this.deletememberDialog = true
                 },
@@ -459,6 +461,7 @@
                         this.items.push(
                             { title: 'Dashboard', icon: 'mdi-view-dashboard', url: "/", selected: false },
                             { title: 'Account', icon: 'mdi-badge-account-horizontal-outline', url: "/profile", selected: false },
+                            { title: 'Coefficient', icon: 'mdi-calculator', url: "/coefficient", selected: false },
                         )
                         if (res.data.role.toLowerCase() == "super admin") {
                             this.items.push(

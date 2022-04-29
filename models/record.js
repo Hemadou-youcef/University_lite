@@ -10,10 +10,13 @@ const UserSchema = Schema({
     },
     complaint_counter : {
         type : Number
+    },
+    coefficient:{
+        type : []
     }
 },{
     titmestamps: true
 });
 
-const user = mongoose.model("counter", UserSchema)
+const user = mongoose.model("record", UserSchema)
 module.exports = user

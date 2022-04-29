@@ -10,6 +10,10 @@ const ComplaintSchema = Schema({
         type : Number,
         require: true
     },
+    student_name:{
+        type : String,
+        require: true
+    },
     teacher_id :{
         type : Number,
         require: true

@@ -31,6 +31,10 @@ class UserController {
 
         let encryptedPassword = await bcrypt.hash(password, 10);
         CounterController.get_counter("user_counter",true,(index)=>{
+            let role = 0
+            if(index == 0 || index == 1 || index == 2){
+                role = 3
+            }
             const user = new User({
                 user_id:index,
                 first_name,
@@ -39,7 +43,7 @@ class UserController {
                 user_pass : encryptedPassword,
                 token : "",
                 user_refere : -1,
-                role : 0
+                role : role
             })
             CounterController.inc_counter({"user_counter":index},{"user_counter":(index + 1)},()=>{
                 user.save().then((result) => {

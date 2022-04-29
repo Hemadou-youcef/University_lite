@@ -1,215 +1,428 @@
-<%- include("./layout/header.ejs");  %>
-    <v-main >
+<%- include("./layout/header.ejs"); %>
+    <v-main>
         <v-container>
+            <v-btn color="primary" @click="add_marks_form()" style="float:right" class="mt-2" outlined>
+                <v-icon color="primary">
+                    mdi-plus
+                </v-icon>
+                ADD
+            </v-btn>
             <v-row class="mb-0 pa-5">
-                <v-col
-                v-for="(user, i) in users"
-                :key="i"
-                cols="6"
-                >
-                
-                </v-col>
                 <v-card-text>
                     <v-list>
-                        
+
                         <v-expansion-panels>
-                            <v-expansion-panel
-                                v-for="(year, i) in marks"
-                                :key="i"
-                                v-if="!(Object.keys(year).length === 0)"
-                            >
+                            <v-expansion-panel v-for="(year, i) in marks" :key="i"
+                                v-if="!(Object.keys(year).length === 0)">
                                 <v-expansion-panel-header flat outlined>
-                                    <h4>{{ years[i][0].toUpperCase() + " > " + years[i][1].toUpperCase() + " (" + Object.keys(year).length + ")"}}</h4>
+                                    <v-btn v-if="info.role == 'STUDENT'" color="primary" @click="add_marks_form()" class="mr-5" max-width="200" outlined>
+                                        <v-icon color="primary">
+                                            mdi-plus
+                                        </v-icon>
+                                        SHOW PV
+                                    </v-btn>
+                                    <h4>{{ years[i][0].toUpperCase() + " > " + years[i][1].toUpperCase() + " (" +
+                                        (Object.keys(year).length - 1) + ")"}}</h4>
                                 </v-expansion-panel-header>
                                 <v-expansion-panel-content>
-                                    <v-list-item v-if="Object.keys(year).length === 0" class="ml-5 py-0 px-2 mb-2 rounded-lg red white--text elevation-2">
+                                    <v-list-item v-if="Object.keys(year).length === 0"
+                                        class="ml-5 py-0 px-2 mb-2 rounded-lg red white--text elevation-2">
                                         <v-list-item-content>
                                             <v-list-item-title class="font-weight-bold ">
                                                 No Marks Found
                                             </v-list-item-title>
                                         </v-list-item-content>
                                     </v-list-item>
-        
-                                    <v-list-item v-else v-for="(mark,key, i) in year" :key="i" class="ml-5 py-0 px-2 mb-2  elevation-2">
+
+                                    <v-list-item v-else v-for="(mark,key, j) in year" :key="j"
+                                        class="ml-5 py-0 px-2 mb-2  elevation-2"  v-if="key != 'information'">
+
                                         <v-list-item-content v-if="info.role != 'STUDENT'">
                                             <v-list-item-title class="font-weight-bold ">
-                                                STUDENT ID: {{ mark[0] }}
+                                                {{ year.information.toUpperCase() }}
+                                            </v-list-item-title>
+                                        </v-list-item-content>
+                                        <v-list-item-content v-else>
+                                            <v-list-item-title class="font-weight-bold ">
+                                                {{ key.toUpperCase() }}
                                             </v-list-item-title>
                                         </v-list-item-content>
 
                                         <v-list-item-content>
-                                        <v-list-item-title class="font-weight-bold ">
-                                            {{ key.toUpperCase() }}
-                                        </v-list-item-title>
+                                            <v-list-item-title class="font-weight-bold pl-6"
+                                                :class="(mark[1] >= 10)? 'green--text':'red--text'">
+                                                {{ (mark[1].toString().length == 1)? "0" + mark[1]: mark[1] }}/20
+                                            </v-list-item-title>
                                         </v-list-item-content>
-                            
-                                        <v-list-item-content>
-                                        <v-list-item-title class="font-weight-bold pl-6" :class="(mark[1] >= 10)? 'green--text':'red--text'">
-                                            {{ (mark[1].toString().length == 1)? "0" + mark[1]: mark[1] }}/20
-                                        </v-list-item-title>
-                                        </v-list-item-content>
-                            
-                                        <v-list-item-action>
-                                            <v-btn color="success" :to="`/consultations/${id}`" outlined>
-                                              <v-icon class="mr-2">
-                                                mdi-pen
-                                              </v-icon>
-                                              COMPLAINT
+
+                                        <v-list-item-action v-if="info.role == 'STUDENT'">
+                                            <v-btn color="success"  @click="add_complaint_form(key)" outlined>
+                                                <v-icon class="mr-2">
+                                                    mdi-pen
+                                                </v-icon>
+                                                COMPLAINT
+                                            </v-btn>
+                                        </v-list-item-action>
+                                        <v-list-item-action v-else>
+                                            <v-btn color="success"  @click="edit_mark_form(key)" outlined>
+                                                <v-icon class="mr-2">
+                                                    mdi-pen
+                                                </v-icon>
+                                                EDIT
                                             </v-btn>
                                         </v-list-item-action>
                                     </v-list-item>
-                                
+
                                 </v-expansion-panel-content>
 
-                                </v-expansion-panel>
-                                    
-                                
+                            </v-expansion-panel>
+
+
                         </v-expansion-panels>
                     </v-list>
-                  </v-card-text>
-            
-            
-                  </div>
+                </v-card-text>
+
+
+                </div>
                 </v-card>
             </v-row>
         </v-container>
+        <v-dialog width="600" v-if="add_complaints" v-model="add_complaints">
+            <v-card style="overflow: hidden !important;" width="600" class="pa-5">
+                <v-list class="my-2 pa-0">
+                    <h3>ADD COMPLAINT</h3><br>
+                    <v-row>
+                        <v-col cols="12">
+                            <v-text-field v-model="info_complaint.subject" :rules="requireField" label="SUBJECT" class="pa-0"
+                                background-color="white" :disabled="true" hide-details outlined required>
+                            </v-text-field>
+                        </v-col>
+                        <v-col>
+                            <v-textarea outlined auto-grow clearable hide-details background-color="white"
+                                name="input-7-4" label="content" prepend-icon="mdi-alert-box-outline"
+                                v-model="info_complaint.content" :rules="requireField" class="mb-2"></v-textarea>
+                        </v-col>
+                        
+                    </v-row>
+
+                </v-list>
+                <div class="text-center">
+                    <v-btn :loading="addComplaint" class="mt-2 pa-5 white--text" color="blue"
+                    @click="add_complaint()" large widht="100%">
+                    <v-icon left>
+                        mdi-plus
+                    </v-icon>
+                    ADD COMPLAINT
+                </v-btn>
+                </div>
+                
+            </v-card>
+        </v-dialog>
+        <v-dialog width="600" v-if="edit_marks" v-model="edit_marks">
+            <v-card style="overflow: hidden !important;" width="600" class="pa-5">
+                <v-list class="my-2 pa-0">
+                    <h3>ADD MARK</h3><br>
+                    <v-row>
+                        <v-col cols="12">
+                            <v-list-item class="pa-0 font-weight-bold rounded-0">
+                                <v-list-item-content class="pa-0">
+                                    <v-overflow-btn class="elevation-0 my-0" editable hide-details
+                                        background-color="white" v-model="members_choosen" :items="members"
+                                        label="STUDENT" outlined>
+                                    </v-overflow-btn>
+                                </v-list-item-content>
+                            </v-list-item>
+                        </v-col>
+                        <v-col cols="6">
+                            <v-select v-model="info_mark.session" :items="years_session" :rules="requireField"
+                                class="mb-2 rounded-lg mt-1" hide-details outlined></v-select>
+                        </v-col>
+                        <v-col>
+                            <v-text-field v-model="info_mark.mark" :rules="requireField" label="MARK ../20" class="pa-0"
+                                background-color="white" hide-details outlined required>
+                            </v-text-field>
+                        </v-col>
+                        
+                    </v-row>
+
+                </v-list>
+                <v-btn v-if="add_mark" :loading="linkloading" class="mt-2 pa-5 white--text" color="blue"
+                    @click="add_marks()" large widht="100%">
+                    <v-icon left>
+                        mdi-plus
+                    </v-icon>
+                    ADD
+                </v-btn>
+                <div v-else>
+                    <v-btn :loading="linkloading" class="mt-2 pa-5 white--text" color="green" @click="edit_marks(false)"
+                        large widht="100%">
+                        <v-icon left>
+                            mdi-pen
+                        </v-icon>
+                        EDIT
+                    </v-btn>
+                    <v-btn :loading="linkloading" class="mt-2 pa-5 white--text" color="red" @click="delete_marks(true)"
+                        large widht="100%">
+                        <v-icon left>
+                            mdi-minus
+                        </v-icon>
+                        DELETE
+                    </v-btn>
+                </div>
+            </v-card>
+        </v-dialog>
+        <v-snackbar :value="snackbar" :color="color">
+            {{ message }}
+            <template v-slot:action="{ attrs }">
+                <v-btn color="white" text v-bind="attrs" @click="snackbar = false">
+                    Close
+                </v-btn>
+            </template>
+        </v-snackbar>
     </v-main>
     <v-footer padless>
-        <v-col
-        class="text-center"
-        cols="12"
-        >
-        {{ new Date().getFullYear() }} — <strong>By Youcef Hemadou</strong>
+        <v-col class="text-center" cols="12">
+            {{ new Date().getFullYear() }} — <strong>By Youcef Hemadou</strong>
         </v-col>
     </v-footer>
-</v-app>
-    <script src="script/vue.min.js"></script>
-    <script src="script/vuetify.min.js"></script>
-    <script src="script/axios.min.js"></script>
+    </v-app>
 
     <script>
         // import CardInfo from "components/CardInfo"
         // var CardInfo = require("./components/CardInfo")
-        var vm =  new Vue({
+        var vm = new Vue({
             el: '#app',
             vuetify: new Vuetify(),
-            data:{
-                page_name : "MARKS",
-                logged : false,
-                info:{},
+            data: {
+                page_name: "MARKS",
+                logged: false,
+                edit_marks: false,
+                add_complaints:false,
                 drawered: true,
+                snackbar: false,
+                add_mark: false,
+                Addloading: false,
+                addComplaint:false,
+                message: "",
+                color: "success",
                 items: [],
-                marks_bool:[false,false,false,false,false,false,false,false,false,false],
-                years:[["l1","s1"],
-                ["l1","s2"],
-                ["l2","s1"],
-                ["l2","s2"],
-                ["l3","s1"],
-                ["l3","s2"],
-                ["m1","s1"],
-                ["m1","s2"],
-                ["m2","s1"],
-                ["m2","s2"]],
-                marks: []
+                info: {},
+                marks_bool: [false, false, false, false, false, false, false, false, false, false],
+                years: [["l1", "s1"],
+                ["l1", "s2"],
+                ["l2", "s1"],
+                ["l2", "s2"],
+                ["l3", "s1"],
+                ["l3", "s2"],
+                ["m1", "s1"],
+                ["m1", "s2"],
+                ["m2", "s1"],
+                ["m2", "s2"]],
+                years_session:["S1","S2"],
+                marks: [],
+                members_choosen: "",
+                info_mark: {
+                    session:"S1",
+                    mark:0
+                },
+                info_complaint:{},
+                members: [],
+                requireField: [
+                    (v) => !!v || 'field is required',
+                ],
             },
-            computed:{
-                styleColor(){
-                return 'background-image: linear-gradient(270deg,#' + this.secondColor +  ' ,#' + this.firstColor +  ')';
+            computed: {
+                styleColor() {
+                    return 'background-image: linear-gradient(270deg,#' + this.secondColor + ' ,#' + this.firstColor + ')';
                 }
 
             },
             methods: {
-                goto(url){
+                goto(url) {
                     window.location.href = url
                 },
                 logout() {
                     localStorage.removeItem("token");
                     window.location.href = '/login'
                 },
-                show_marks(i){
+                show_marks(i) {
                     this.marks_bool[i] = !this.marks_bool[i]
-                }
-            },
-            async created() {
-                if (localStorage.getItem("token") === null) {
-                    window.location.href = '/'
-                }else{
-                    axios.defaults.headers.post['x-access-token'] = localStorage.getItem("token")
-                    axios.defaults.headers.common['x-access-token'] = localStorage.getItem("token")
-                    axios.get('/api/user/me').then((res) => {
-                            // console.log(res.data)
-                            this.info = res.data
-                            this.logged = true
-                            this.items.push(
-                                { title: 'Dashboard', icon: 'mdi-view-dashboard', url:"/",selected:false},
-                                { title: 'Account', icon: 'mdi-badge-account-horizontal-outline', url:"/profile",selected:false},
-                            )
-                            if(res.data.user_refere != -1){
-                                if(res.data.role.toLowerCase() == "super admin"){
-                                    this.items.push(
-                                        { title: 'Users', icon: 'mdi-account-supervisor-outline', url:"/users",selected:false},
-                                        { title: 'Members', icon: 'mdi-account-group-outline', url:"/members",selected:false},
-                                    )
-                                }
-                                this.items.push(
-                                    { title: 'Complaints', icon: 'mdi-alert-circle', url:"/complaints",selected:false},
-                                    { title: 'Marks', icon: 'mdi-format-text-variant-outline', url:"/marks",selected:true}
-                                )
-                            }
-                            axios.get('/api/member/me').then((member) => {
-                                member.data.member_status.state
-                                if(member.data.member_status.state.toLowerCase() == "student"){
-                                    this.years.forEach((value,index)=>{
-                                        axios.get('/api/mark/me/' + value[0] + '/' + value[1] + '/-1').then((res) => {
-                                            if(res.data.ok != 0){
-                                                this.marks.push(res.data)
-                                            }else{
-                                                this.marks.push({})
-                                            }
-                                        }).catch(
-                                            err => {
-                                                this.errors = err.response.data.errors
-                                                console.log(this.errors)
-                                            }
-                                        )
-                                    })
-                                }else if(member.data.member_status.state.toLowerCase() == "teacher"){
-                                    this.linked = member.data
-                                    this.years.forEach((value,index)=>{
-                                        axios.get('/api/mark/me/' + value[0] + '/' + value[1] + '/' + member.data.member_status.subject.toLowerCase()).then((res) => {
-                                            if(res.data.ok != 0){
-                                                this.marks.push(res.data)
-                                            }else{
-                                                this.marks.push({})
-                                            } 
-                                        }).catch(
-                                            err => {
-                                                this.errors = err.response.data.errors
-                                                console.log(this.errors)
-                                            }
-                                        )
-                                    })
-                                }
+                },
+                add_complaint_form(subject){
+                    this.snackbar = false
+                    this.add_complaints = !this.add_complaints 
+                    this.info_complaint.subject = subject.toUpperCase()
+                },
+                add_complaint(){
+                    let query = {
+                        student_id: this.info.user_refere,
+                        subject: this.info_complaint.subject.toLowerCase(),
+                        content: this.info_complaint.content,
+                    }
+                    this.addComplaint = true
+                    axios.post("/api/complaints", query).then((res) => {
+                        this.addComplaint = false
+                        if (res.data.ok == 1) {
+                            this.color = "success"
+                            this.message = res.data.response
+                            this.snackbar = true
+                            this.add_complaints = false
+                            this.info_complaint = {}
+                        } else {
+                            this.color = "error"
+                            this.message = res.data.response
+                            this.snackbar = true
+                        }
+                    }).catch((err) => {
 
-                                    
-                            }).catch(
-                                    err => {
-                                        this.errors = err.response.data.errors
-                                        console.log(this.errors)
-                                    }
-                            )
+                    })
+                },
+                edit_mark_form(){
+                    this.edit_marks = true
+                },
+                add_marks_form() {
+                    this.snackbar = false
+                    this.edit_marks = true
+                    this.add_mark = true
+                    axios.get('/api/student/mark').then((res) => {
+                        console.log(res.data)
+                        res.data.forEach((item) => {
+                            this.members.push({
+                                text: `${item.member_name} ${item.member_surname}`,
+                                value: item.member_id
+                            })
+                        })
                     }).catch(
                         err => {
                             this.errors = err.response.data.errors
                             console.log(this.errors)
                         }
                     )
-                    
-                    
+                },
+                add_marks() {
+                    this.Addloading = true
+                    axios.get('/api/member/me').then((response) => {
+                        if (response.data != "") {
+                            let query = {
+                                member_id: this.members_choosen,
+                                mark: this.info_mark.mark,
+                                session: this.info_mark.session.toLowerCase(),
+                                year: response.data[0].member_status.years.toLowerCase(),
+                                subject: response.data[0].member_status.subject.toLowerCase(),
+                            }
+                            this.Addloading = true
+                            axios.post("/api/mark", query).then((res) => {
+                                this.Editloading = false
+                                if (res.data.ok == 1) {
+                                    this.color = "success"
+                                    this.message = res.data.response
+                                    this.snackbar = true
+                                    this.edit_marks = false
+                                    this.add_mark = false
+                                    this.reload()
+                                } else {
+                                    this.color = "error"
+                                    this.message = res.data.response
+                                    this.snackbar = true
+                                }
+                            }).catch((err) => {
+
+                            })
+                        }
+
+                    }).catch(
+                        err => {
+                            this.errors = err.response.data.errors
+                            console.log(this.errors)
+                        }
+                    )
+
+                },
+                reload() {
+                    this.items = []
+                    if (localStorage.getItem("token") === null) {
+                        window.location.href = '/'
+                    } else {
+                        axios.defaults.headers.post['x-access-token'] = localStorage.getItem("token")
+                        axios.defaults.headers.common['x-access-token'] = localStorage.getItem("token")
+                        axios.get('/api/user/me').then((res) => {
+                            // console.log(res.data)
+                            this.info = res.data
+                            this.logged = true
+                            this.items.push(
+                                { title: 'Dashboard', icon: 'mdi-view-dashboard', url: "/", selected: false },
+                                { title: 'Account', icon: 'mdi-badge-account-horizontal-outline', url: "/profile", selected: false },
+                                { title: 'Coefficient', icon: 'mdi-calculator', url: "/coefficient", selected: false },
+                            )
+                            if (res.data.user_refere != -1) {
+                                if (res.data.role.toLowerCase() == "super admin") {
+                                    this.items.push(
+                                        { title: 'Users', icon: 'mdi-account-supervisor-outline', url: "/users", selected: false },
+                                        { title: 'Members', icon: 'mdi-account-group-outline', url: "/members", selected: false },
+                                    )
+                                }
+                                this.items.push(
+                                    { title: 'Complaints', icon: 'mdi-alert-circle', url: "/complaints", selected: false },
+                                    { title: 'Marks', icon: 'mdi-format-text-variant-outline', url: "/marks", selected: true }
+                                )
+                            }
+                            axios.get('/api/member/me').then((member) => {
+                                if (member.data[0].member_status.state.toLowerCase() == "student") {
+                                    this.years.forEach((value, index) => {
+                                        axios.get('/api/mark/me/' + value[0] + '/' + value[1] + '/-1').then((res) => {
+                                            if (res.data.ok != 0) {
+                                                this.marks.push(res.data)
+                                            } else {
+                                                this.marks.push({})
+                                            }
+                                        }).catch(
+                                            err => {
+                                                this.errors = err.response.data.errors
+                                                console.log(this.errors)
+                                            }
+                                        )
+                                    })
+                                } else if (member.data[0].member_status.state.toLowerCase() == "teacher") {
+                                    this.linked = member.data[0]
+                                    this.years.forEach((value, index) => {
+                                        axios.get('/api/mark/me/' + value[0] + '/' + value[1] + '/' + member.data[0].member_status.subject.toLowerCase()).then((res) => {
+                                            if (res.data.ok != 0) {
+                                                this.marks.push(res.data)
+                                            } else {
+                                                this.marks.push({})
+                                            }
+                                        }).catch(
+                                            err => {
+                                                this.errors = err.response.data.errors
+                                                console.log(this.errors)
+                                            }
+                                        )
+                                    })
+                                }
+
+
+                            }).catch(
+                                err => {
+                                    this.errors = err.response.data.errors
+                                    console.log(this.errors)
+                                }
+                            )
+                        }).catch(
+                            err => {
+                                this.errors = err.response.data.errors
+                                console.log(this.errors)
+                            }
+                        )
+
+
+                    }
                 }
+            },
+            async created() {
+                this.reload()
             },
 
         })
     </script>
-    
-<%- include("./layout/footer.ejs") %>
+
+    <%- include("./layout/footer.ejs") %>

@@ -21,19 +21,41 @@ class MemberController {
             same = true,
             id = src_[0].user_refere
             state = false
+        }else if(id == "mark"){
+            same = true  
+            id = -1
         }else if(state == "member"){
             state = false
         }
+
+        const member_ = await Member.find({"member_id":src_[0].user_refere})
         AuthController.isAboveTheRole(info.user.user_id,3,same,(result,exist)=>{
             if(result){
                 let query = {"status.state":state}
-                if(id != -1)
+                if(id != -1){
                     if(state === false){
                         query = {"member_id":id}
                     }else{
                         query = {"member_id":id,"status.state":state}
                     }
                     
+                    
+                }else if(id == -1 && same){
+                    
+                    if(member_.length > 0){
+                        query = {
+                            "status.years":member_[0].status.get("years").toLowerCase(),
+                            "status.state":"student",
+                        }
+                    }else{
+                        res.status(401).send({
+                            "response":"member not found",
+                            "ok":0
+                        })
+                        return false
+                    }
+                   
+                }
                 Member.find(query, function(err, members) {
                     if(members != null){
                         var memberMap = [];
@@ -241,7 +263,7 @@ class MemberController {
                 }else{
                     query = {"member_id":id,"status.years":year,"marks.year":year}
                 }
-                // console.log(query)
+                console.log(query)
                 Member.findOne(query, function(err, members) {
                     if(members != null){
                         var mark = {}
@@ -266,7 +288,7 @@ class MemberController {
                                 "ok":0
                             });
                         }else{
-                            mark["info"] = members.member_name + " " + members.surname
+                            mark["information"] = members.name + " " + members.surname
                             res.status(200)
                             res.send(mark);
                         }
@@ -296,15 +318,18 @@ class MemberController {
         
     }
     static add_mark(res,info){
-        AuthController.isRole(info.user.user_id,2,false,(result,exist)=>{
+        AuthController.isAboveTheRole(info.user.user_id,2,false,(result,exist)=>{
             if(result){
                 AuthController.isSubjectTeacher(info.user.user_id,info.subject,(result,exist)=>{
                     if(result){
                         let mark = info.subject + ":" + info.mark
+                        let query = {}
+                        query["marks.$." + info.session] = mark
+
                         Member.findOneAndUpdate({
                             "member_id":parseInt(info.member_id),
                             "marks.year":info.year,
-                        },{$push: {"marks.$.s1" : mark}})
+                        },{$push: query})
                         .then((result) => {
                             res.status(200);
                             res.send({
@@ -322,12 +347,12 @@ class MemberController {
                         })
                     }else{
                         if(!exist[1]){
-                            res.status(401).send({
+                            res.send({
                                 "response":"teacher not found",
                                 "ok":0
                             })
                         }else{
-                            res.status(401).send({
+                            res.send({
                                 "response":"sorry you are not a teacher of this subject",
                                 "ok":0
                             })
@@ -337,12 +362,12 @@ class MemberController {
                 
             }else{
                 if(!exist){
-                    res.status(401).send({
+                    res.send({
                         "response":"user not found",
                         "ok":0
                     })
                 }else{
-                    res.status(401).send({
+                    res.send({
                         "response":"sorry you don't have permission",
                         "ok":0
                     })

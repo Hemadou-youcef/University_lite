@@ -78,5 +78,8 @@
     "dev": "nodemon index.js"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "material-design-icons-iconfont": "^6.6.0"
+  }
 }

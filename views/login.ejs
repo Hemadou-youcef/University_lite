@@ -30,14 +30,16 @@
                     <v-text-field
                     v-model="login_info.password"
                     label="Password"
-                    type="password"
                     prepend-icon="mdi-lock"
                     class="pa-2"
                     v-on:keyup.enter="login"
+                    :type="show4 ? 'text' : 'password'"
+                    :append-icon="show4 ? 'mdi-eye' : 'mdi-eye-off'"
                     background-color="white"
                     hide-details
                     outlined
                     required
+                    @click:append="show4 = !show4"
                     ></v-text-field>
                     <div class="text-center">
                         <v-btn
@@ -67,9 +69,6 @@
         </v-col>
     </v-footer>
 </v-app>
-    <script src="script/vue.min.js"></script>
-    <script src="script/vuetify.min.js"></script>
-    <script src="script/axios.min.js"></script>
     <!-- {"user_name" : "yousedl","password" : "12345678991"} -->
     <script>
         // import CardInfo from "components/CardInfo"
@@ -83,6 +82,7 @@
                 drawered: true,
                 loading:false,
                 valid:false,
+                show4:false,
                 items: [
                     { title: 'About US', icon: 'mdi-information-variant', url:"/About-us"},
                 ],

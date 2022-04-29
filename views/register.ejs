@@ -60,13 +60,15 @@
                     v-model="register_info.password"
                     :rules="nameRules"
                     label="Password"
-                    type="password"
                     prepend-icon="mdi-lock"
+                    :append-icon="show4 ? 'mdi-eye' : 'mdi-eye-off'"
                     class="pa-2"
                     background-color="white"
+                    :type="show4 ? 'text' : 'password'"
                     hide-details
                     outlined
                     required
+                    @click:append="show4 = !show4"
                     ></v-text-field>
 
                     <v-checkbox
@@ -110,9 +112,6 @@
         </v-col>
     </v-footer>
 </v-app>
-    <script src="script/vue.min.js"></script>
-    <script src="script/vuetify.min.js"></script>
-    <script src="script/axios.min.js"></script>
 
     <script>
         // import CardInfo from "components/CardInfo"
@@ -128,6 +127,7 @@
                 valid:false,
                 checkbox:false,
                 loading:false,
+                show4:false,
                 response:{
                     show:false,
                     type:"",

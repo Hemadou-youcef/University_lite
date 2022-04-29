@@ -7,14 +7,16 @@
     <link rel="stylesheet" type="text/css" href="/style/style.css" />
     <link rel="icon" href="/image/favicon.png">
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css">
     <link href="/style/vuetify.min.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
     <title>UNIVERSITY</title>
 </head>
 
 <body>
-
+    <script src="/script/vue.min.js"></script>
+    <script src="/script/vuetify.min.js"></script>
+    <script src="/script/axios.min.js"></script>
     <v-app id="app">
         <header>
             <v-app-bar color="blue" flat app>
@@ -84,7 +86,7 @@
                     <v-icon color="white" large>
                         mdi-school
                     </v-icon>
-                    <span class="ml-5 font-weight-bold" :class="`text-subtitle-${(MiniLogo)?'2':'1'}`">
+                    <span class="ml-5 font-weight-bold">
                         UNIVERSITY
                     </span>
 

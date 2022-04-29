@@ -35,9 +35,9 @@
                             </v-chip>
                         </v-card-title>
                         <v-card-subtitle class="pb-0">
-                            <p>User ID: {{ user.user_id }}</p>
-                            <p>User Name: {{ user.user_name }}</p>
-                            <p>linked to : {{ (user.user_refere != -1)? user.user_refere: "NO MEMBER" }}</p>
+                            <b>User ID: {{ user.user_id }}</b><br>
+                            <b>User Name: {{ user.user_name }}</b><br>
+                            <b>linked to : {{ (user.user_refere != -1)? user.user_refere: "NO MEMBER" }}</b><br>
                         </v-card-subtitle>
                         <v-card-actions>
                             <v-btn :loading="loading" class="ma-1" color="success lighten-3" plain outlined
@@ -174,9 +174,6 @@
         </v-col>
     </v-footer>
     </v-app>
-    <script src="script/vue.min.js"></script>
-    <script src="script/vuetify.min.js"></script>
-    <script src="script/axios.min.js"></script>
 
     <script>
         // import CardInfo from "components/CardInfo"
@@ -262,14 +259,13 @@
                             this.color = "success"
                             this.message = res.data.response
                             this.snackbar = true
-                            this.edit_users = false
                             axios.get('/api/user/-1').then((res) => {
                                 console.log(res.data)
                                 this.users = res.data
                                 this.users.forEach((value, index) => {
                                     if (value.user_refere != -1) {
                                         axios.get('/api/member/' + value.user_refere).then((response) => {
-                                            this.users[index].user_refere = "[" + response.data.member_status.state.toUpperCase() + "] " + response.data.member_name + " " + response.data.member_surname
+                                            this.users[index].user_refere = "[" + response.data[0].member_status.state.toUpperCase() + "] " + response.data[0].member_name + " " + response.data[0].member_surname
                                         })
                                     }
                                 })
@@ -313,7 +309,7 @@
                                 this.users.forEach((value, index) => {
                                     if (value.user_refere != -1) {
                                         axios.get('/api/member/' + value.user_refere).then((response) => {
-                                            this.users[index].user_refere = "[" + response.data.member_status.state.toUpperCase() + "] " + response.data.member_name + " " + response.data.member_surname
+                                            this.users[index].user_refere = "[" + response.data[0].member_status.state.toUpperCase() + "] " + response.data[0].member_name + " " + response.data[0].member_surname
                                         })
                                     }
                                 })
@@ -382,7 +378,8 @@
                             this.logged = true
                             this.items.push(
                                 { title: 'Dashboard', icon: 'mdi-view-dashboard', url: "/", selected: false },
-                                { title: 'Account', icon: 'mdi-badge-account-horizontal-outline', url: "/profile", selected: false },
+                                { title: 'Account', icon: 'mdi-identifier', url: "/profile", selected: false },
+                                { title: 'Coefficient', icon: 'mdi-calculator', url: "/coefficient", selected: false },
                             )
                             if (res.data.role.toLowerCase() == "super admin") {
                                 this.items.push(
@@ -410,9 +407,9 @@
                             this.users.forEach((value, index) => {
                                 if (value.user_refere != -1) {
                                     axios.get('/api/member/' + value.user_refere).then((response) => {
-                                        this.users[index].linked_state = response.data.member_status.state.toUpperCase()
-                                        this.users[index].linked = response.data.member_id
-                                        this.users[index].user_refere = "[" + response.data.member_status.state.toUpperCase() + "] " + response.data.member_name + " " + response.data.member_surname
+                                        this.users[index].linked_state = response.data[0].member_status.state.toUpperCase()
+                                        this.users[index].linked = response.data[0].member_id
+                                        this.users[index].user_refere = "[" + response.data[0].member_status.state.toUpperCase() + "] " + response.data[0].member_name + " " + response.data[0].member_surname
                                     })
                                 }
                             })

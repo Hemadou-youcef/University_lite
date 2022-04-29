@@ -5,6 +5,7 @@ const parser = require("body-parser")
 const user_controller = require("./../controllers/UserController")
 const member_controller = require("./../controllers/MemberController")
 const complaint_controller = require("./../controllers/ComplaintController")
+const counter_controller = require("./../controllers/CounterController")
 
 //MIDDLEWARE
 const auth = require("./../middleware/auth");
@@ -68,6 +69,23 @@ app.get("/api/pv/:id",auth ,(req,res)=>{
         "response":"Sorry you don't have access, that all we know"
     })
 })
+app.get("/api/subject/:subject",auth ,(req,res)=>{
+    // GET PV
+    counter_controller.get_coefficient(res,req.params.subject,req.body)
+})
+app.post("/api/subject",auth ,(req,res)=>{
+    // ADD MARK BY STUDENTS ID
+    counter_controller.add_coefficient(res,req.body)
+})
+app.put("/api/subject",auth ,(req,res)=>{
+    // ADD MARK BY STUDENTS ID
+    counter_controller.edit_coefficient(res,req.body)
+})
+app.delete("/api/subject",auth ,(req,res)=>{
+    // ADD MARK BY STUDENTS ID
+    counter_controller.delete_coefficient(res,req.body)
+})
+
 // MARK FUNCTIONS
 app.get("/api/mark/:id/:year/:season/:subject",auth ,(req,res)=>{
     // SHOW MARK BY SUBJECT

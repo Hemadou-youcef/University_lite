@@ -183,9 +183,6 @@
         </v-col>
     </v-footer>
     </v-app>
-    <script src="script/vue.min.js"></script>
-    <script src="script/vuetify.min.js"></script>
-    <script src="script/axios.min.js"></script>
 
     <script>
         // import CardInfo from "components/CardInfo"
@@ -254,11 +251,13 @@
                         this.items.push(
                             { title: 'Dashboard', icon: 'mdi-view-dashboard', url: "/", selected: false },
                             { title: 'Account', icon: 'mdi-badge-account-horizontal-outline', url: "/profile", selected: true },
+                            { title: 'Coefficient', icon: 'mdi-calculator', url: "/coefficient", selected: false },
                         )
                         if (res.data.role.toLowerCase() == "super admin") {
                             this.items.push(
                                 { title: 'Users', icon: 'mdi-account-supervisor-outline', url: "/users", selected: false },
                                 { title: 'Members', icon: 'mdi-account-group-outline', url: "/members", selected: false },
+                                
                             )
                         }
                         if(res.data.user_refere != -1){

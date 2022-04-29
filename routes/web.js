@@ -1,6 +1,6 @@
 const express = require("express")
 const path = require("path")
-
+const auth = require("./../middleware/checker");
 
 module.exports = function (web) { 
     web.engine('.ejs', require('ejs').__express); 
@@ -35,6 +35,12 @@ module.exports = function (web) {
     web.get("/complaint/:id",(req,res)=>{
         res.setHeader('Content-Type', 'text/html');
         res.status(200).render('complaint.ejs',{
+            id: req.params.id
+        });
+    })
+    web.get("/coefficient",(req,res)=>{
+        res.setHeader('Content-Type', 'text/html');
+        res.status(200).render('coefficient.ejs',{
             id: req.params.id
         });
     })
