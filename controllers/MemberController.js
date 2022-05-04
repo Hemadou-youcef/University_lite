@@ -263,7 +263,6 @@ class MemberController {
                 }else{
                     query = {"member_id":id,"status.years":year,"marks.year":year}
                 }
-                console.log(query)
                 Member.findOne(query, function(err, members) {
                     if(members != null){
                         var mark = {}
@@ -273,7 +272,7 @@ class MemberController {
                         
                         members.marks[year_number[year]].get(season).forEach(function(member,index) {
                             if(member.toLowerCase().includes(subject)){
-                                if(subject = ":"){
+                                if(subject == ":"){
                                     mark[member.split(":")[0]] = [members.member_id,parseInt(members.marks[year_number[year]].get(season)[index].split(":")[1])]
                                 }else{
                                     mark[subject] = [members.member_id,parseInt(members.marks[year_number[year]].get(season)[index].split(":")[1])]
@@ -288,7 +287,7 @@ class MemberController {
                                 "ok":0
                             });
                         }else{
-                            mark["information"] = members.name + " " + members.surname
+                            mark["information"] = [members.name + " " + members.surname,members.member_id]
                             res.status(200)
                             res.send(mark);
                         }
@@ -447,7 +446,9 @@ class MemberController {
         
     }
     static delete_mark(res,id,info){
-        AuthController.isRole(info.user.user_id,2,false,(result,exist)=>{
+        AuthController.isAboveTheRole(info.user.user_id,3,false,(result,exist)=>{
+
+            
             if(result){
                 AuthController.isSubjectTeacher(info.user.user_id,info.subject,(result,exist)=>{
                     if(result){
@@ -456,7 +457,7 @@ class MemberController {
                 
                         filter["member_id"] = parseInt(id)
                         marks["marks." + year_number[info.year.toLowerCase()] + "." + info.season] = info.subject + ":" + info.mark
-                
+                        console.log(filter)
                         Member.findOneAndUpdate(filter,{$pull: marks})
                             .then((result) => {
                                 res.status(200);

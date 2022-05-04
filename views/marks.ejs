@@ -15,7 +15,8 @@
                             <v-expansion-panel v-for="(year, i) in marks" :key="i"
                                 v-if="!(Object.keys(year).length === 0)">
                                 <v-expansion-panel-header flat outlined>
-                                    <v-btn v-if="info.role == 'STUDENT'" color="primary" @click="add_marks_form()" class="mr-5" max-width="200" outlined>
+                                    <v-btn v-if="info.role == 'STUDENT'" color="primary" @click="add_marks_form()"
+                                        class="mr-5" max-width="200" outlined>
                                         <v-icon color="primary">
                                             mdi-plus
                                         </v-icon>
@@ -35,11 +36,11 @@
                                     </v-list-item>
 
                                     <v-list-item v-else v-for="(mark,key, j) in year" :key="j"
-                                        class="ml-5 py-0 px-2 mb-2  elevation-2"  v-if="key != 'information'">
+                                        class="ml-5 py-0 px-2 mb-2  elevation-2" v-if="key != 'information'">
 
                                         <v-list-item-content v-if="info.role != 'STUDENT'">
                                             <v-list-item-title class="font-weight-bold ">
-                                                {{ year.information.toUpperCase() }}
+                                                {{ year.information[0].toUpperCase() }}
                                             </v-list-item-title>
                                         </v-list-item-content>
                                         <v-list-item-content v-else>
@@ -56,7 +57,7 @@
                                         </v-list-item-content>
 
                                         <v-list-item-action v-if="info.role == 'STUDENT'">
-                                            <v-btn color="success"  @click="add_complaint_form(key)" outlined>
+                                            <v-btn color="success" @click="add_complaint_form(key)" outlined>
                                                 <v-icon class="mr-2">
                                                     mdi-pen
                                                 </v-icon>
@@ -64,7 +65,9 @@
                                             </v-btn>
                                         </v-list-item-action>
                                         <v-list-item-action v-else>
-                                            <v-btn color="success"  @click="edit_mark_form(key)" outlined>
+                                            <v-btn color="success"
+                                                @click="edit_mark_form(year.information[1],mark[1],years[i][1])"
+                                                outlined>
                                                 <v-icon class="mr-2">
                                                     mdi-pen
                                                 </v-icon>
@@ -93,8 +96,8 @@
                     <h3>ADD COMPLAINT</h3><br>
                     <v-row>
                         <v-col cols="12">
-                            <v-text-field v-model="info_complaint.subject" :rules="requireField" label="SUBJECT" class="pa-0"
-                                background-color="white" :disabled="true" hide-details outlined required>
+                            <v-text-field v-model="info_complaint.subject" :rules="requireField" label="SUBJECT"
+                                class="pa-0" background-color="white" :disabled="true" hide-details outlined required>
                             </v-text-field>
                         </v-col>
                         <v-col>
@@ -102,20 +105,20 @@
                                 name="input-7-4" label="content" prepend-icon="mdi-alert-box-outline"
                                 v-model="info_complaint.content" :rules="requireField" class="mb-2"></v-textarea>
                         </v-col>
-                        
+
                     </v-row>
 
                 </v-list>
                 <div class="text-center">
-                    <v-btn :loading="addComplaint" class="mt-2 pa-5 white--text" color="blue"
-                    @click="add_complaint()" large widht="100%">
-                    <v-icon left>
-                        mdi-plus
-                    </v-icon>
-                    ADD COMPLAINT
-                </v-btn>
+                    <v-btn :loading="addComplaint" class="mt-2 pa-5 white--text" color="blue" @click="add_complaint()"
+                        large widht="100%">
+                        <v-icon left>
+                            mdi-plus
+                        </v-icon>
+                        ADD COMPLAINT
+                    </v-btn>
                 </div>
-                
+
             </v-card>
         </v-dialog>
         <v-dialog width="600" v-if="edit_marks" v-model="edit_marks">
@@ -127,26 +130,26 @@
                             <v-list-item class="pa-0 font-weight-bold rounded-0">
                                 <v-list-item-content class="pa-0">
                                     <v-overflow-btn class="elevation-0 my-0" editable hide-details
-                                        background-color="white" v-model="members_choosen" :items="members"
-                                        label="STUDENT" outlined>
+                                        background-color="white" :disabled="!add_mark" v-model="members_choosen"
+                                        :items="members" label="STUDENT" outlined>
                                     </v-overflow-btn>
                                 </v-list-item-content>
                             </v-list-item>
                         </v-col>
                         <v-col cols="6">
                             <v-select v-model="info_mark.session" :items="years_session" :rules="requireField"
-                                class="mb-2 rounded-lg mt-1" hide-details outlined></v-select>
+                                class="mb-2 rounded-lg mt-1" :disabled="!add_mark" hide-details outlined></v-select>
                         </v-col>
                         <v-col>
                             <v-text-field v-model="info_mark.mark" :rules="requireField" label="MARK ../20" class="pa-0"
                                 background-color="white" hide-details outlined required>
                             </v-text-field>
                         </v-col>
-                        
+
                     </v-row>
 
                 </v-list>
-                <v-btn v-if="add_mark" :loading="linkloading" class="mt-2 pa-5 white--text" color="blue"
+                <v-btn v-if="add_mark" :loading="Addloading" class="mt-2 pa-5 white--text" color="blue"
                     @click="add_marks()" large widht="100%">
                     <v-icon left>
                         mdi-plus
@@ -154,14 +157,14 @@
                     ADD
                 </v-btn>
                 <div v-else>
-                    <v-btn :loading="linkloading" class="mt-2 pa-5 white--text" color="green" @click="edit_marks(false)"
+                    <v-btn :loading="Addloading" class="mt-2 pa-5 white--text" color="green" @click="edit_marks(false)"
                         large widht="100%">
                         <v-icon left>
                             mdi-pen
                         </v-icon>
                         EDIT
                     </v-btn>
-                    <v-btn :loading="linkloading" class="mt-2 pa-5 white--text" color="red" @click="delete_marks(true)"
+                    <v-btn :loading="Addloading" class="mt-2 pa-5 white--text" color="red" @click="delete_marks()"
                         large widht="100%">
                         <v-icon left>
                             mdi-minus
@@ -197,12 +200,12 @@
                 page_name: "MARKS",
                 logged: false,
                 edit_marks: false,
-                add_complaints:false,
+                add_complaints: false,
                 drawered: true,
                 snackbar: false,
                 add_mark: false,
                 Addloading: false,
-                addComplaint:false,
+                addComplaint: false,
                 message: "",
                 color: "success",
                 items: [],
@@ -218,14 +221,14 @@
                 ["m1", "s2"],
                 ["m2", "s1"],
                 ["m2", "s2"]],
-                years_session:["S1","S2"],
+                years_session: ["S1", "S2"],
                 marks: [],
                 members_choosen: "",
                 info_mark: {
-                    session:"S1",
-                    mark:0
+                    session: "S1",
+                    mark: 0
                 },
-                info_complaint:{},
+                info_complaint: {},
                 members: [],
                 requireField: [
                     (v) => !!v || 'field is required',
@@ -248,12 +251,12 @@
                 show_marks(i) {
                     this.marks_bool[i] = !this.marks_bool[i]
                 },
-                add_complaint_form(subject){
+                add_complaint_form(subject) {
                     this.snackbar = false
-                    this.add_complaints = !this.add_complaints 
+                    this.add_complaints = !this.add_complaints
                     this.info_complaint.subject = subject.toUpperCase()
                 },
-                add_complaint(){
+                add_complaint() {
                     let query = {
                         student_id: this.info.user_refere,
                         subject: this.info_complaint.subject.toLowerCase(),
@@ -277,8 +280,29 @@
 
                     })
                 },
-                edit_mark_form(){
+                edit_mark_form(id, mark, session) {
+                    this.snackbar = false
                     this.edit_marks = true
+                    this.add_mark = false
+                    this.info_mark = {
+                        session: session.toUpperCase(),
+                        mark: mark
+                    }
+                    this.members_choosen = id
+                    axios.get('/api/student/mark').then((res) => {
+                        console.log(res.data)
+                        res.data.forEach((item) => {
+                            this.members.push({
+                                text: `${item.member_name} ${item.member_surname}`,
+                                value: item.member_id
+                            })
+                        })
+                    }).catch(
+                        err => {
+                            this.errors = err.response.data.errors
+                            console.log(this.errors)
+                        }
+                    )
                 },
                 add_marks_form() {
                     this.snackbar = false
@@ -312,6 +336,44 @@
                             }
                             this.Addloading = true
                             axios.post("/api/mark", query).then((res) => {
+                                this.Editloading = false
+                                if (res.data.ok == 1) {
+                                    this.color = "success"
+                                    this.message = res.data.response
+                                    this.snackbar = true
+                                    this.edit_marks = false
+                                    this.add_mark = false
+                                    this.reload()
+                                } else {
+                                    this.color = "error"
+                                    this.message = res.data.response
+                                    this.snackbar = true
+                                }
+                            }).catch((err) => {
+
+                            })
+                        }
+
+                    }).catch(
+                        err => {
+                            this.errors = err.response.data.errors
+                            console.log(this.errors)
+                        }
+                    )
+
+                },
+                delete_marks() {
+                    this.Addloading = true
+                    axios.get('/api/member/me').then((response) => {
+                        if (response.data != "") {
+                            let query = {
+                                mark: this.info_mark.mark,
+                                season: this.info_mark.session.toLowerCase(),
+                                year: response.data[0].member_status.years.toLowerCase(),
+                                subject: response.data[0].member_status.subject.toLowerCase(),
+                            }
+                            this.Addloading = true
+                            axios.delete("/api/mark/" + this.members_choosen,{ data: query } ).then((res) => {
                                 this.Editloading = false
                                 if (res.data.ok == 1) {
                                     this.color = "success"
