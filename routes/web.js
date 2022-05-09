@@ -38,9 +38,9 @@ module.exports = function (web) {
             id: req.params.id
         });
     })
-    web.get("/coefficient",(req,res)=>{
+    web.get("/modules",(req,res)=>{
         res.setHeader('Content-Type', 'text/html');
-        res.status(200).render('coefficient.ejs',{
+        res.status(200).render('modules.ejs',{
             id: req.params.id
         });
     })

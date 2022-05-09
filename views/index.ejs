@@ -29,16 +29,25 @@
             <v-card elevation="5" class="rounded-lg">
                 <v-sheet class="ma-0  pa-5" color="blue darken-3">
                     <span class="white--text font-weight-bold">
-                        THIS WEBSITE MADE BY YOUCEF HEMADOU
+                        THIS WEBSITE MADE BY 
                     </span>
-                    
+                </v-sheet>
+                <v-sheet class="ma-0  pa-5" color="blue darken-3">
+                    <span class="white--text font-weight-bold">
+                        YOUCEF HEMADOU
+                    </span>
+                </v-sheet>
+                <v-sheet class="ma-0  pa-5" color="blue darken-3">
+                    <span class="white--text font-weight-bold">
+                        SAMI BOULOUDNINE
+                    </span> 
                 </v-sheet>
             </v-card>
         </v-container>
     </v-main>
     <v-footer padless>
         <v-col class="text-center" cols="12">
-            {{ new Date().getFullYear() }} — <strong>By Youcef Hemadou</strong>
+            {{ new Date().getFullYear() }} — <strong>By YH - SB</strong>
         </v-col>
     </v-footer>
     </v-app>
@@ -90,6 +99,7 @@
                         this.items.push(
                             { title: 'Dashboard', icon: 'mdi-view-dashboard', url: "/", selected: true },
                             { title: 'Account', icon: 'mdi-badge-account-horizontal-outline', url: "/profile", selected: false },
+                            { title: 'Modules', icon: 'mdi-calculator', url: "/modules", selected: false },
                         )
                         if (res.data.role.toLowerCase() == "super admin") {
                             this.items.push(

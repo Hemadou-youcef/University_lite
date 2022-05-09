@@ -27,7 +27,7 @@ const MemberSchema = Schema({
         require: true
     },
     marks : {
-        type : [Map],
+        type : [],
         require:false
     },
     status :{

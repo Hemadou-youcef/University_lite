@@ -39,7 +39,7 @@
     </v-main>
     <v-footer padless>
         <v-col class="text-center" cols="12">
-            {{ new Date().getFullYear() }} — <strong>By Youcef Hemadou</strong>
+            {{ new Date().getFullYear() }} — <strong>By YH - SB</strong>
         </v-col>
     </v-footer>
     </v-app>
@@ -86,7 +86,7 @@
                         this.items.push(
                             { title: 'Dashboard', icon: 'mdi-view-dashboard', url: "/", selected: false },
                             { title: 'Account', icon: 'mdi-badge-account-horizontal-outline', url: "/profile", selected: false },
-                            { title: 'Coefficient', icon: 'mdi-calculator', url: "/coefficient", selected: false },
+                            { title: 'Modules', icon: 'mdi-calculator', url: "/modules", selected: false },
                         )
                         if (res.data.user_refere != -1) {
                             if (res.data.role.toLowerCase() == "super admin") {

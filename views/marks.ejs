@@ -34,47 +34,92 @@
                                             </v-list-item-title>
                                         </v-list-item-content>
                                     </v-list-item>
+                                    <div v-if="year.length == 1 && Object.keys(year[0]).length > 2">
+                                        <v-list-item v-else v-for="(mark,key, j) in year[0]" :key="j"
+                                            class="ml-5 py-0 px-2 mb-2  elevation-2" v-if="key != 'information'">
+                                            <v-list-item-content v-if="info.role != 'STUDENT'">
+                                                <v-list-item-title class="font-weight-bold ">
+                                                    {{ mark.information[0].toUpperCase() }}
+                                                </v-list-item-title>
+                                            </v-list-item-content>
+                                            <v-list-item-content v-else>
+                                                <v-list-item-title class="font-weight-bold ">
+                                                    {{ key.toUpperCase() }}
+                                                </v-list-item-title>
+                                            </v-list-item-content>
 
-                                    <v-list-item v-else v-for="(mark,key, j) in year" :key="j"
-                                        class="ml-5 py-0 px-2 mb-2  elevation-2" v-if="key != 'information'">
+                                            <v-list-item-content>
+                                                <v-list-item-title class="font-weight-bold pl-6"
+                                                    :class="(mark[1] >= 10)? 'green--text':'red--text'">
+                                                    {{ mark[1] }}/20
+                                                </v-list-item-title>
 
-                                        <v-list-item-content v-if="info.role != 'STUDENT'">
-                                            <v-list-item-title class="font-weight-bold ">
-                                                {{ year.information[0].toUpperCase() }}
-                                            </v-list-item-title>
-                                        </v-list-item-content>
-                                        <v-list-item-content v-else>
-                                            <v-list-item-title class="font-weight-bold ">
-                                                {{ key.toUpperCase() }}
-                                            </v-list-item-title>
-                                        </v-list-item-content>
+                                            </v-list-item-content>
 
-                                        <v-list-item-content>
-                                            <v-list-item-title class="font-weight-bold pl-6"
-                                                :class="(mark[1] >= 10)? 'green--text':'red--text'">
-                                                {{ (mark[1].toString().length == 1)? "0" + mark[1]: mark[1] }}/20
-                                            </v-list-item-title>
-                                        </v-list-item-content>
+                                            <v-list-item-action v-if="info.role == 'STUDENT'">
+                                                <v-btn color="success" @click="add_complaint_form(key)" outlined>
+                                                    <v-icon class="mr-2">
+                                                        mdi-pen
+                                                    </v-icon>
+                                                    COMPLAINT
+                                                </v-btn>
+                                            </v-list-item-action>
+                                            <v-list-item-action v-else>
+                                                <v-btn color="success"
+                                                    @click="edit_mark_form(year.information[1],mark[1],years[i][1])"
+                                                    outlined>
+                                                    <v-icon class="mr-2">
+                                                        mdi-pen
+                                                    </v-icon>
+                                                    EDIT
+                                                </v-btn>
+                                            </v-list-item-action>
+                                        </v-list-item>
+                                    </div>
+                                    <div v-else>
+                                        <v-list-item v-else v-for="(mark,key, j) in year" :key="j"
+                                            class="ml-5 py-0 px-2 mb-2  elevation-2" v-if="key != 'information'">
+                                            <v-list-item-content v-if="info.role != 'STUDENT'">
+                                                <v-list-item-title class="font-weight-bold ">
+                                                    {{ mark.information[0].toUpperCase() }}
+                                                </v-list-item-title>
+                                            </v-list-item-content>
+                                            <v-list-item-content v-else>
+                                                <v-list-item-title class="font-weight-bold ">
+                                                    {{ year }}
+                                                </v-list-item-title>
+                                            </v-list-item-content>
 
-                                        <v-list-item-action v-if="info.role == 'STUDENT'">
-                                            <v-btn color="success" @click="add_complaint_form(key)" outlined>
-                                                <v-icon class="mr-2">
-                                                    mdi-pen
-                                                </v-icon>
-                                                COMPLAINT
-                                            </v-btn>
-                                        </v-list-item-action>
-                                        <v-list-item-action v-else>
-                                            <v-btn color="success"
-                                                @click="edit_mark_form(year.information[1],mark[1],years[i][1])"
-                                                outlined>
-                                                <v-icon class="mr-2">
-                                                    mdi-pen
-                                                </v-icon>
-                                                EDIT
-                                            </v-btn>
-                                        </v-list-item-action>
-                                    </v-list-item>
+                                            <v-list-item-content>
+                                                <v-list-item-title class="font-weight-bold pl-6"
+                                                    :class="(Object.values(mark)[0][1] >= 10)? 'green--text':'red--text'">
+                                                    {{ (Object.values(mark)[0][1].toString().length == 1)? "0" +
+                                                    Object.values(mark)[0][1]: Object.values(mark)[0][1] }}/20
+                                                </v-list-item-title>
+
+                                            </v-list-item-content>
+
+                                            <v-list-item-action v-if="info.role == 'STUDENT'">
+                                                <v-btn color="success" @click="add_complaint_form(key)" outlined>
+                                                    <v-icon class="mr-2">
+                                                        mdi-pen
+                                                    </v-icon>
+                                                    COMPLAINT
+                                                </v-btn>
+                                            </v-list-item-action>
+                                            <v-list-item-action v-else>
+                                                <v-btn color="success"
+                                                    @click="edit_mark_form( mark.information[1],Object.values(mark)[0][1],years[i][1])"
+                                                    outlined>
+                                                    <v-icon class="mr-2">
+                                                        mdi-pen
+                                                    </v-icon>
+                                                    EDIT
+                                                </v-btn>
+                                            </v-list-item-action>
+                                        </v-list-item>
+                                    </div>
+
 
                                 </v-expansion-panel-content>
 
@@ -121,7 +166,7 @@
 
             </v-card>
         </v-dialog>
-        <v-dialog width="600" v-if="edit_marks" v-model="edit_marks">
+        <v-dialog width="600" v-if="edit_mark" v-model="edit_mark">
             <v-card style="overflow: hidden !important;" width="600" class="pa-5">
                 <v-list class="my-2 pa-0">
                     <h3>ADD MARK</h3><br>
@@ -164,8 +209,8 @@
                         </v-icon>
                         EDIT
                     </v-btn>
-                    <v-btn :loading="Addloading" class="mt-2 pa-5 white--text" color="red" @click="delete_marks()"
-                        large widht="100%">
+                    <v-btn :loading="Addloading" class="mt-2 pa-5 white--text" color="red" @click="delete_marks()" large
+                        widht="100%">
                         <v-icon left>
                             mdi-minus
                         </v-icon>
@@ -185,7 +230,7 @@
     </v-main>
     <v-footer padless>
         <v-col class="text-center" cols="12">
-            {{ new Date().getFullYear() }} — <strong>By Youcef Hemadou</strong>
+            {{ new Date().getFullYear() }} — <strong>By YH - SB</strong>
         </v-col>
     </v-footer>
     </v-app>
@@ -199,7 +244,7 @@
             data: {
                 page_name: "MARKS",
                 logged: false,
-                edit_marks: false,
+                edit_mark: false,
                 add_complaints: false,
                 drawered: true,
                 snackbar: false,
@@ -282,11 +327,12 @@
                 },
                 edit_mark_form(id, mark, session) {
                     this.snackbar = false
-                    this.edit_marks = true
+                    this.edit_mark = true
                     this.add_mark = false
                     this.info_mark = {
                         session: session.toUpperCase(),
-                        mark: mark
+                        mark: mark,
+                        old_mark:mark
                     }
                     this.members_choosen = id
                     axios.get('/api/student/mark').then((res) => {
@@ -306,7 +352,7 @@
                 },
                 add_marks_form() {
                     this.snackbar = false
-                    this.edit_marks = true
+                    this.edit_mark = true
                     this.add_mark = true
                     axios.get('/api/student/mark').then((res) => {
                         console.log(res.data)
@@ -341,8 +387,52 @@
                                     this.color = "success"
                                     this.message = res.data.response
                                     this.snackbar = true
-                                    this.edit_marks = false
+                                    this.edit_mark = false
                                     this.add_mark = false
+                                    this.Addloading = false
+                                    this.marks = []
+                                    this.reload()
+                                } else {
+                                    this.color = "error"
+                                    this.message = res.data.response
+                                    this.snackbar = true
+                                }
+                            }).catch((err) => {
+
+                            })
+                        }
+
+                    }).catch(
+                        err => {
+                            this.errors = err.response.data.errors
+                            console.log(this.errors)
+                        }
+                    )
+
+                },
+                edit_marks() {
+                    this.Addloading = true
+                    axios.get('/api/member/me').then((response) => {
+                        if (response.data != "") {
+                            let query = {
+                                old_mark: this.info_mark.old_mark,
+                                mark: this.info_mark.mark,
+                                session: this.info_mark.session.toLowerCase(),
+                                year: response.data[0].member_status.years.toLowerCase(),
+                                subject: response.data[0].member_status.subject.toLowerCase(),
+                            }
+                            console.log(query)
+                            this.Addloading = true
+                            axios.put("/api/mark/" + this.members_choosen, query).then((res) => {
+                                this.Editloading = false
+                                if (res.data.ok == 1) {
+                                    this.color = "success"
+                                    this.message = res.data.response
+                                    this.snackbar = true
+                                    this.edit_mark = false
+                                    this.add_mark = false
+                                    this.Addloading = false
+                                    this.marks = []
                                     this.reload()
                                 } else {
                                     this.color = "error"
@@ -368,19 +458,21 @@
                         if (response.data != "") {
                             let query = {
                                 mark: this.info_mark.mark,
-                                season: this.info_mark.session.toLowerCase(),
+                                session: this.info_mark.session.toLowerCase(),
                                 year: response.data[0].member_status.years.toLowerCase(),
                                 subject: response.data[0].member_status.subject.toLowerCase(),
                             }
                             this.Addloading = true
-                            axios.delete("/api/mark/" + this.members_choosen,{ data: query } ).then((res) => {
+                            axios.delete("/api/mark/" + this.members_choosen, { data: query }).then((res) => {
                                 this.Editloading = false
                                 if (res.data.ok == 1) {
                                     this.color = "success"
                                     this.message = res.data.response
                                     this.snackbar = true
-                                    this.edit_marks = false
+                                    this.edit_mark = false
                                     this.add_mark = false
+                                    this.Addloading = false
+                                    this.marks = []
                                     this.reload()
                                 } else {
                                     this.color = "error"
@@ -414,7 +506,7 @@
                             this.items.push(
                                 { title: 'Dashboard', icon: 'mdi-view-dashboard', url: "/", selected: false },
                                 { title: 'Account', icon: 'mdi-badge-account-horizontal-outline', url: "/profile", selected: false },
-                                { title: 'Coefficient', icon: 'mdi-calculator', url: "/coefficient", selected: false },
+                                { title: 'Modules', icon: 'mdi-calculator', url: "/modules", selected: false },
                             )
                             if (res.data.user_refere != -1) {
                                 if (res.data.role.toLowerCase() == "super admin") {
