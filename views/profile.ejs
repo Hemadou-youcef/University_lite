@@ -253,10 +253,11 @@
                             { title: 'Account', icon: 'mdi-badge-account-horizontal-outline', url: "/profile", selected: true },
                             { title: 'Modules', icon: 'mdi-calculator', url: "/modules", selected: false },
                         )
-                        if (res.data.role.toLowerCase() == "super admin") {
+                        if (res.data.role.toLowerCase() == "chef") {
                             this.items.push(
                                 { title: 'Users', icon: 'mdi-account-supervisor-outline', url: "/users", selected: false },
                                 { title: 'Members', icon: 'mdi-account-group-outline', url: "/members", selected: false },
+                                { title: 'PV', icon: 'mdi-clipboard-text-multiple-outline', url: "/pv", selected: false },
                                 
                             )
                         }

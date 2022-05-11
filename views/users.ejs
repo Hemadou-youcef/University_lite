@@ -7,11 +7,11 @@
                         <v-card-title class="text-h5">
                             <h4>{{ user.firstname.toUpperCase() + " " + user.lastname.toUpperCase() }}</h4>
                             <v-chip class="ma-2" color="#fff" outlined label text-color="white"
-                                v-if="user.role == 'SUPER ADMIN'" style="float:right">
+                                v-if="user.role == 'CHEF'" style="float:right">
                                 <v-icon left>
                                     mdi-shield-crown-outline
                                 </v-icon>
-                                ADMIN
+                                CHEF
                             </v-chip>
                             <v-chip class="ma-2" color="#fff" outlined label text-color="white"
                                 v-else-if="user.role == 'TEACHER'">
@@ -93,8 +93,8 @@
                         </v-list-item-content>
                         <v-list-item-content class="pa-0 ma-0 ml-6">
                             <v-overflow-btn class="my-0 elevation-0" editable hide-details background-color="white"
-                                v-model="member_id" :items="member_list" :loading="members_loading"
-                                 label="members" outlined>
+                                v-model="member_id" :items="member_list" :loading="members_loading" label="members"
+                                outlined>
                             </v-overflow-btn>
                         </v-list-item-content>
                     </v-list-item>
@@ -201,7 +201,7 @@
                     lastname: "",
                     user_id: 0
                 },
-                user_roles: ["GUEST", "STUDENT", 'TEACHER', "SUPER ADMIN"],
+                user_roles: ["GUEST", "STUDENT", 'TEACHER', "CHEF"],
                 member_types: [
                     'TEACHER', 'STUDENT'
                 ],
@@ -213,22 +213,22 @@
             watch: {
                 member_type(value) {
                     this.members_loading = true
-                        axios.get('/api/' + value.toLowerCase() + '/-1').then((res) => {
-                            this.member_list = []
-                            res.data.forEach((item) => {
-                                this.member_list.push({
-                                    text: `${item.member_name} ${item.member_surname}`,
-                                    value: item.member_id
-                                })
+                    axios.get('/api/' + value.toLowerCase() + '/-1').then((res) => {
+                        this.member_list = []
+                        res.data.forEach((item) => {
+                            this.member_list.push({
+                                text: `${item.member_name} ${item.member_surname}`,
+                                value: item.member_id
                             })
-                            this.members_loading = false
-                        }).catch(
-                            err => {
-                                this.errors = err.response.data.errors
-                                console.log(this.errors)
-                            }
-                        )
-                    
+                        })
+                        this.members_loading = false
+                    }).catch(
+                        err => {
+                            this.errors = err.response.data.errors
+                            console.log(this.errors)
+                        }
+                    )
+
                 }
             },
             methods: {
@@ -244,13 +244,14 @@
                     this.member_type = this.users[i].linked_state
                     this.member_id = this.users[i].linked
                     this.edit_users = true
+                    this.snackbar = false
                 },
                 grant_role() {
                     let role_number = {
                         "GUEST": 0,
                         "STUDENT": 1,
                         "TEACHER": 2,
-                        "SUPER ADMIN": 3,
+                        "CHEF": 3,
                     }
                     this.grantloading = true
                     axios.put("/api/grant/" + this.edited_user.user_id, { role: role_number[this.edited_user.role] }).then((res) => {
@@ -281,16 +282,18 @@
                             this.snackbar = true
                         }
                     }).catch((err) => {
-
+                        this.color = "error"
+                        this.message = res.data.response
+                        this.snackbar = true
                     })
                 },
                 link_user(unlink) {
                     let query = {}
-                    if(unlink){
+                    if (unlink) {
                         query = {
                             user_refere: -1
                         }
-                    }else{
+                    } else {
                         query = {
                             user_refere: this.member_id
                         }
@@ -325,7 +328,9 @@
                             this.snackbar = true
                         }
                     }).catch((err) => {
-
+                        this.color = "error"
+                        this.message = res.data.response
+                        this.snackbar = true
                     })
                 },
                 delete_user(i) {
@@ -381,10 +386,11 @@
                                 { title: 'Account', icon: 'mdi-identifier', url: "/profile", selected: false },
                                 { title: 'Modules', icon: 'mdi-calculator', url: "/modules", selected: false },
                             )
-                            if (res.data.role.toLowerCase() == "super admin") {
+                            if (res.data.role.toLowerCase() == "chef") {
                                 this.items.push(
                                     { title: 'Users', icon: 'mdi-account-supervisor-outline', url: "/users", selected: true },
                                     { title: 'Members', icon: 'mdi-account-group-outline', url: "/members", selected: false },
+                                    { title: 'PV', icon: 'mdi-clipboard-text-multiple-outline', url: "/pv", selected: false },
                                 )
                             } else {
                                 window.location.href = '/'

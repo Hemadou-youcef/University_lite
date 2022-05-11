@@ -63,11 +63,9 @@ app.use(parser.json())
 */
 
 // PV FUNCTIONS
-app.get("/api/pv/:id",auth ,(req,res)=>{
+app.get("/api/pv/:id/:year/:season",auth ,(req,res)=>{
     // GET PV
-    res.send({
-        "response":"Sorry you don't have access, that all we know"
-    })
+    counter_controller.get_pv(res,req.body,req.params.id,req.params.year,req.params.season)
 })
 app.get("/api/subject/:subject",auth ,(req,res)=>{
     // GET PV

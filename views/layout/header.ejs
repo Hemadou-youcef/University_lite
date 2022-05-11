@@ -32,12 +32,12 @@
                     <v-icon>mdi-magnify</v-icon>
                 </v-btn>
                 <div  v-if="logged">
-                    <v-chip class="ma-2 font-weight-bold" color="white" outlined label v-if="info.role == 'SUPER ADMIN'"
+                    <v-chip class="ma-2 font-weight-bold" color="white" outlined label v-if="info.role.toLowerCase() == 'chef'"
                     style="float:right">
                         <v-icon left>
                             mdi-shield-crown-outline
                         </v-icon>
-                        ADMIN
+                        CHEF
                     </v-chip>
                     <v-chip class="ma-2 font-weight-bold" color="white" outlined label v-else-if="info.role == 'TEACHER'"
                     style="float:right">

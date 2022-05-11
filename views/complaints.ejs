@@ -89,10 +89,11 @@
                             { title: 'Modules', icon: 'mdi-calculator', url: "/modules", selected: false },
                         )
                         if (res.data.user_refere != -1) {
-                            if (res.data.role.toLowerCase() == "super admin") {
+                            if (res.data.role.toLowerCase() == "chef") {
                                 this.items.push(
                                     { title: 'Users', icon: 'mdi-account-supervisor-outline', url: "/users", selected: false },
                                     { title: 'Members', icon: 'mdi-account-group-outline', url: "/members", selected: false },
+                                    { title: 'PV', icon: 'mdi-clipboard-text-multiple-outline', url: "/pv", selected: false },
                                 )
                             }
                             this.items.push(

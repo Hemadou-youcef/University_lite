@@ -384,7 +384,7 @@ class MemberController {
     }
     // EDIT MARK  IN DB
     static edit_mark(res, id, info) {
-        AuthController.isAboveTheRole(info.user.user_id, 3, false, (result, exist) => {
+        AuthController.isAboveTheRole(info.user.user_id, 2, false, (result, exist) => {
             if (result) {
                 AuthController.isSubjectTeacher(info.user.user_id, info.subject, (result, exist) => {
                     if (result) {

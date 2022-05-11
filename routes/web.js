@@ -40,9 +40,11 @@ module.exports = function (web) {
     })
     web.get("/modules",(req,res)=>{
         res.setHeader('Content-Type', 'text/html');
-        res.status(200).render('modules.ejs',{
-            id: req.params.id
-        });
+        res.status(200).render('modules.ejs');
+    })
+    web.get("/pv",(req,res)=>{
+        res.setHeader('Content-Type', 'text/html');
+        res.status(200).render('pv.ejs');
     })
     web.get("/login",(req,res)=>{
         res.setHeader('Content-Type', 'text/html');

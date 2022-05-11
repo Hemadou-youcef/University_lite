@@ -1,7 +1,7 @@
 <%- include("./layout/header.ejs"); %>
     <v-main>
         <v-container>
-            <v-btn v-if="info.role == 'SUPER ADMIN'" color="primary" @click="edit_coefficient_form();add_coeff = true" class="mt-2" outlined>
+            <v-btn v-if="info.role.toLowerCase() == 'chef'" color="primary" @click="edit_coefficient_form();add_coeff = true" class="mt-2" outlined>
                 <v-icon color="primary">
                     mdi-plus
                 </v-icon>
@@ -157,7 +157,7 @@
                     window.location.href = '/login'
                 },
                 edit_coefficient_form(subject, coeff) {
-                    if(this.info.role == 'SUPER ADMIN'){
+                    if(this.info.role.toLowerCase() == 'chef'){
                         this.snackbar = false
                         this.add_coeff = false
                         this.new_coeff = {
@@ -289,11 +289,11 @@
                             { title: 'Account', icon: 'mdi-badge-account-horizontal-outline', url: "/profile", selected: false },
                             { title: 'Modules', icon: 'mdi-calculator', url: "/modules", selected: true },
                         )
-                        if (res.data.role.toLowerCase() == "super admin") {
+                        if (res.data.role.toLowerCase() == "chef") {
                             this.items.push(
                                 { title: 'Users', icon: 'mdi-account-supervisor-outline', url: "/users", selected: false },
                                 { title: 'Members', icon: 'mdi-account-group-outline', url: "/members", selected: false },
-                                
+                                { title: 'PV', icon: 'mdi-clipboard-text-multiple-outline', url: "/pv", selected: false },
                             )
                         }
                         if (res.data.user_refere != -1) {

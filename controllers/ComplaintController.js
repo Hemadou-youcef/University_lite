@@ -16,20 +16,22 @@ class ComplaintController {
         if (src_[0].user_refere != -1 && src_[0].role >= 1) {
             let query = {}
             query[from + "_id"] = src_[0].user_refere
-
+            console.log(query)
             const complaint_ = await Complaint.find(query)
             if (complaint_.length >= 1) {
                 same = true
             }
         }
-        
-        AuthController.isRole(info.user.user_id, 2, same, (result, exist) => {
+        console.log(same)
+        AuthController.isAboveTheRole(info.user.user_id, 2, same, (result, exist) => {
             if (result) {
                 let query = {}
-                if (src_[0].role >= 2) {
+                if (src_[0].role == 2) {
                     query = { "teacher_id": src_[0].user_refere }
                     if (id != -1)
                         query["complaint_id"] = id
+
+                }else if(src_[0].role >= 3){
 
                 } else {
                     query[from + "_id"] = src_[0].user_refere
@@ -37,8 +39,9 @@ class ComplaintController {
                         query = { "complaint_id": id }
                 }
 
-
+                
                 Complaint.find(query, (err, complaints) => {
+                    
                     if (complaints != null) {
                         var complaintMap = [];
                         complaints.forEach((complaint, index) => {

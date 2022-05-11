@@ -1,7 +1,7 @@
 <%- include("./layout/header.ejs"); %>
     <v-main>
         <v-container>
-            <v-btn color="primary" @click="add_marks_form()" style="float:right" class="mt-2" outlined>
+            <v-btn color="primary" @click="add_marks_form()" style="float:right" v-if="info.role == 'TEACHER'" class="mt-2" outlined>
                 <v-icon color="primary">
                     mdi-plus
                 </v-icon>
@@ -15,7 +15,7 @@
                             <v-expansion-panel v-for="(year, i) in marks" :key="i"
                                 v-if="!(Object.keys(year).length === 0)">
                                 <v-expansion-panel-header flat outlined>
-                                    <v-btn v-if="info.role == 'STUDENT'" color="primary" @click="add_marks_form()"
+                                    <v-btn v-if="info.role == 'STUDENT'" color="primary" @click="goto('/pv')"
                                         class="mr-5" max-width="200" outlined>
                                         <v-icon color="primary">
                                             mdi-plus
@@ -34,7 +34,7 @@
                                             </v-list-item-title>
                                         </v-list-item-content>
                                     </v-list-item>
-                                    <div v-if="year.length == 1 && Object.keys(year[0]).length > 2">
+                                    <div v-if="info.role == 'STUDENT'">
                                         <v-list-item v-else v-for="(mark,key, j) in year[0]" :key="j"
                                             class="ml-5 py-0 px-2 mb-2  elevation-2" v-if="key != 'information'">
                                             <v-list-item-content v-if="info.role != 'STUDENT'">
@@ -509,10 +509,11 @@
                                 { title: 'Modules', icon: 'mdi-calculator', url: "/modules", selected: false },
                             )
                             if (res.data.user_refere != -1) {
-                                if (res.data.role.toLowerCase() == "super admin") {
+                                if (res.data.role.toLowerCase() == "chef") {
                                     this.items.push(
                                         { title: 'Users', icon: 'mdi-account-supervisor-outline', url: "/users", selected: false },
                                         { title: 'Members', icon: 'mdi-account-group-outline', url: "/members", selected: false },
+                                        { title: 'PV', icon: 'mdi-clipboard-text-multiple-outline', url: "/pv", selected: false },
                                     )
                                 }
                                 this.items.push(

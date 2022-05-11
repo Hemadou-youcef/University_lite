@@ -1,0 +1,242 @@
+<%- include("./layout/header.ejs"); %>
+    <v-main>
+        <v-container>
+            <v-btn color="primary" @click="add_marks_form()" style="float:right" v-if="info.role == 'TEACHER'"
+                class="mt-2" outlined>
+                <v-icon color="primary">
+                    mdi-plus
+                </v-icon>
+                ADD
+            </v-btn>
+        </v-container>
+        <v-row class="pa-5">
+            <v-col>
+                <v-select v-model="years_choose" :items="years" :rules="requireField" class="mb-2 rounded-lg mt-1"
+                    hide-details outlined></v-select>
+            </v-col>
+            <v-col>
+                <v-select v-model="season_choose" :items="season" :rules="requireField" class="mb-2 rounded-lg mt-1"
+                    hide-details outlined></v-select>
+            </v-col>
+        </v-row>
+        </v-container>
+
+        <v-expansion-panels class="pa-5">
+            <v-expansion-panel>
+                <v-expansion-panel-header flat outlined>
+                    <h4>{{ years_choose.toUpperCase() + " > " + season_choose.toUpperCase() }}</h4>
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+
+                    <v-list-item v-for="(mark,j) in marks" :key="j" class="ml-5 py-0 px-2 mb-2  elevation-2">
+                        <v-list-item-content>
+                            <v-list-item-title class="font-weight-bold ">
+                                {{ mark[0][0] }}
+                            </v-list-item-title>
+
+                        </v-list-item-content>
+
+                        <v-list-item-content v-for="(item,k) in mark.slice(2)" :key="k">
+                            <v-list-item-title class="font-weight-bold pl-6">
+                                {{ item[1] + " : " + item[2] }}
+                            </v-list-item-title>
+
+                        </v-list-item-content>
+
+                        <v-list-item-content>
+                            <v-list-item-title class="font-weight-bold pl-6">
+                                MOYEN: {{ Math.round(mark[1] * 100) / 100 }}
+                            </v-list-item-title>
+
+                        </v-list-item-content>
+
+                    </v-list-item>
+                </v-expansion-panel-content>
+
+            </v-expansion-panel>
+
+
+        </v-expansion-panels>
+    </v-main>
+    <v-footer padless>
+        <v-col class="text-center" cols="12">
+            {{ new Date().getFullYear() }} — <strong>By YH - SB</strong>
+        </v-col>
+    </v-footer>
+    </v-app>
+
+    <script>
+        // import CardInfo from "components/CardInfo"
+        // var CardInfo = require("./components/CardInfo")
+        var vm = new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data: {
+                page_name: "MARKS",
+                logged: false,
+                edit_mark: false,
+                add_complaints: false,
+                drawered: true,
+                snackbar: false,
+                add_mark: false,
+                Addloading: false,
+                addComplaint: false,
+                years: ["l1", "l2", "l3", "m1", "m2",],
+                season: ["s1", "s2"],
+                years_choose: "m1",
+                season_choose: "s1",
+                message: "",
+                color: "success",
+                items: [],
+                info: {},
+                marks_bool: [false, false, false, false, false, false, false, false, false, false],
+                marks: [],
+                members_choosen: "",
+                info_complaint: {},
+                members: [],
+            },
+            computed: {
+                styleColor() {
+                    return 'background-image: linear-gradient(270deg,#' + this.secondColor + ' ,#' + this.firstColor + ')';
+                }
+
+            },
+            watch: {
+                years_choose() {
+                    this.get_pv()
+                },
+                season_choose() {
+                    this.get_pv()
+                }
+            },
+            methods: {
+                goto(url) {
+                    window.location.href = url
+                },
+                logout() {
+                    localStorage.removeItem("token");
+                    window.location.href = '/login'
+                },
+                get_pv() {
+                    this.marks = []
+                    axios.get('/api/member/me').then((member) => {
+                        if (member.data[0].member_status.state.toLowerCase() == "student") {
+                            let url = '/api/pv/me/' + this.years_choose + "/" + this.season_choose
+                            axios.get(url).then((res) => {
+                                if (res.data.ok != 0) {
+                                    this.marks = res.data.response
+                                }
+                            }).catch(
+                                err => {
+                                    this.errors = err.response.data.errors
+                                    console.log(this.errors)
+                                }
+                            )
+                        }
+                    }).catch(
+                        err => {
+                            this.errors = err.response.data.errors
+                            console.log(this.errors)
+                        }
+                    )
+                    if (this.info.role.toLowerCase() == "chef") {
+                        let url = '/api/pv/me/' + this.years_choose + "/" + this.season_choose
+                        axios.get(url).then((res) => {
+                            if (res.data.ok != 0) {
+                                this.marks = res.data.response
+                            }
+                        }).catch(
+                            err => {
+                                this.errors = err.response.data.errors
+                                console.log(this.errors)
+                            }
+                        )
+                    }
+                },
+                reload() {
+                    this.items = []
+                    if (localStorage.getItem("token") === null) {
+                        window.location.href = '/'
+                    } else {
+                        axios.defaults.headers.post['x-access-token'] = localStorage.getItem("token")
+                        axios.defaults.headers.common['x-access-token'] = localStorage.getItem("token")
+                        axios.get('/api/user/me').then((res) => {
+                            // console.log(res.data)
+                            this.info = res.data
+                            this.logged = true
+                            this.items.push(
+                                { title: 'Dashboard', icon: 'mdi-view-dashboard', url: "/", selected: false },
+                                { title: 'Account', icon: 'mdi-badge-account-horizontal-outline', url: "/profile", selected: false },
+                                { title: 'Modules', icon: 'mdi-calculator', url: "/modules", selected: false },
+                            )
+                            if (res.data.role.toLowerCase() == "chef") {
+                                this.items.push(
+                                    { title: 'Users', icon: 'mdi-account-supervisor-outline', url: "/users", selected: false },
+                                    { title: 'Members', icon: 'mdi-account-group-outline', url: "/members", selected: false },
+                                    { title: 'PV', icon: 'mdi-clipboard-text-multiple-outline', url: "/pv", selected: true },
+                                )
+                            }
+                            if (res.data.user_refere != -1) {
+                                this.items.push(
+                                    { title: 'Complaints', icon: 'mdi-alert-circle', url: "/complaints" },
+                                    { title: 'Marks', icon: 'mdi-format-text-variant-outline', url: "/marks", selected: false }
+                                )
+                            }
+                            axios.get('/api/member/me').then((member) => {
+                                if (member.data[0].member_status.state.toLowerCase() == "student") {
+                                    let url = '/api/pv/me/' + this.years_choose + "/" + this.season_choose
+                                    axios.get(url).then((res) => {
+                                        if (res.data.ok != 0) {
+                                            this.marks = res.data.response
+                                        } else {
+                                            this.marks.push({})
+                                        }
+                                    }).catch(
+                                        err => {
+                                            this.errors = err.response.data.errors
+                                            console.log(this.errors)
+                                        }
+                                    )
+                                }
+
+
+                            }).catch(
+                                err => {
+                                    this.errors = err.response.data.errors
+                                    console.log(this.errors)
+                                }
+                            )
+                            if (this.info.role.toLowerCase() == "chef") {
+                                let url = '/api/pv/me/' + this.years_choose + "/" + this.season_choose
+                                axios.get(url).then((res) => {
+                                    if (res.data.ok != 0) {
+                                        this.marks = res.data.response
+                                    } else {
+                                        this.marks.push({})
+                                    }
+                                }).catch(
+                                    err => {
+                                        this.errors = err.response.data.errors
+                                        console.log(this.errors)
+                                    }
+                                )
+                            }
+                        }).catch(
+                            err => {
+                                this.errors = err.response.data.errors
+                                console.log(this.errors)
+                            }
+                        )
+
+
+                    }
+                }
+            },
+            async created() {
+                this.reload()
+            },
+
+        })
+    </script>
+
+    <%- include("./layout/footer.ejs") %>
