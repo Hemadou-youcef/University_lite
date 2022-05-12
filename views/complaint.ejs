@@ -10,7 +10,7 @@
                     <v-divider class="mb-5"></v-divider>
                     <span style="color:white;font-weight:bold;font-size: 20px;"
                         v-for="(line) in complaint.content.split('\n')">
-                        {{ line.toUpperCase()}} <br/>
+                        {{ line.toUpperCase()}} <br />
                     </span>
                     <v-divider class="mt-5"></v-divider>
                 </v-card-subtitle>
@@ -95,7 +95,8 @@
         </v-dialog>
         <v-dialog width="400" v-model="deletecomplaint">
             <v-card style="overflow: hidden !important;" width="400" height="150">
-                <div class="text-caption font-weight-bold text-center pt-6 blue--text" style="font-size: 16px !important; ">
+                <div class="text-caption font-weight-bold text-center pt-6 blue--text"
+                    style="font-size: 16px !important; ">
                     DONE???
                 </div>
 
@@ -119,8 +120,8 @@
                         <v-tooltip bottom>
 
                             <template v-slot:activator="{ on, attrs }">
-                                <v-btn @click="deletecomplaint = false" v-on="on" v-bind="attrs" outlined icon
-                                    large color="green">
+                                <v-btn @click="deletecomplaint = false" v-on="on" v-bind="attrs" outlined icon large
+                                    color="green">
                                     <v-icon color="green">mdi-close</v-icon>
                                 </v-btn>
 
@@ -152,7 +153,7 @@
         </v-col>
     </v-footer>
     </v-app>
-    
+
 
     <script>
         // import CardInfo from "components/CardInfo"
@@ -167,8 +168,8 @@
                 loading: false,
                 snackbar: false,
                 editComplaintLoading: false,
-                Deleteloading:false,
-                deletecomplaint:false,
+                Deleteloading: false,
+                deletecomplaint: false,
                 message: "",
                 color: "",
                 editcomplaint: false,
@@ -195,10 +196,10 @@
                     localStorage.removeItem("token");
                     window.location.href = '/login'
                 },
-                delete_complaint_form(){
+                delete_complaint_form() {
                     this.deletecomplaint = true
                 },
-                delete_complaint(){
+                delete_complaint() {
                     this.Deleteloading = true
                     axios.delete("/api/complaints/" + this.complaint.id).then((res) => {
                         this.Deleteloading = false
@@ -255,21 +256,21 @@
                                 { title: 'Account', icon: 'mdi-badge-account-horizontal-outline', url: "/profile", selected: false },
                                 { title: 'Modules', icon: 'mdi-calculator', url: "/modules", selected: false },
                             )
-                            if (res.data.user_refere != -1) {
-                                if (res.data.role.toLowerCase() == "chef") {
-                                    this.items.push(
-                                        { title: 'Users', icon: 'mdi-account-supervisor-outline', url: "/users", selected: false },
-                                        { title: 'Members', icon: 'mdi-account-group-outline', url: "/members", selected: false },
-                                        { title: 'PV', icon: 'mdi-clipboard-text-multiple-outline', url: "/pv", selected: false },  
-                                    )
-                                }
+                            if (res.data.role.toLowerCase() == "chef") {
                                 this.items.push(
-                                    { title: 'Complaints', icon: 'mdi-alert-circle', url: "/complaints", selected: true },
-                                    { title: 'Marks', icon: 'mdi-format-text-variant-outline', url: "/marks", selected: false }
+                                    { title: 'Users', icon: 'mdi-account-supervisor-outline', url: "/users", selected: false },
+                                    { title: 'Members', icon: 'mdi-account-group-outline', url: "/members", selected: false },
+                                    { title: 'PV', icon: 'mdi-clipboard-text-multiple-outline', url: "/pv", selected: false },
                                 )
-                            } else {
-                                window.location.href = '/'
                             }
+                            this.items.push(
+                            { title: 'Complaints', icon: 'mdi-alert-circle', url: "/complaints", selected: true },
+                        )
+                        if (res.data.user_refere != -1)  {
+                            this.items.push(
+                                { title: 'Marks', icon: 'mdi-format-text-variant-outline', url: "/marks", selected: false }
+                            )
+                        }
                             let complaint_id = <%= id  %>
                                 axios.get('/api/complaints/' + complaint_id + '/' + res.data.role.toLowerCase()).then((response) => {
                                     this.complaint = response.data[0]

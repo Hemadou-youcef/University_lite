@@ -296,9 +296,11 @@
                                 { title: 'PV', icon: 'mdi-clipboard-text-multiple-outline', url: "/pv", selected: false },
                             )
                         }
-                        if (res.data.user_refere != -1) {
+                        this.items.push(
+                            { title: 'Complaints', icon: 'mdi-alert-circle', url: "/complaints", selected: false },
+                        )
+                        if (res.data.user_refere != -1)  {
                             this.items.push(
-                                { title: 'Complaints', icon: 'mdi-alert-circle', url: "/complaints" },
                                 { title: 'Marks', icon: 'mdi-format-text-variant-outline', url: "/marks", selected: false }
                             )
                         }

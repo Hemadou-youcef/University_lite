@@ -1,7 +1,8 @@
 <%- include("./layout/header.ejs"); %>
     <v-main>
         <v-container>
-            <v-btn color="primary" @click="add_marks_form()" style="float:right" v-if="info.role == 'TEACHER'" class="mt-2" outlined>
+            <v-btn color="primary" @click="add_marks_form()" style="float:right" v-if="info.role == 'TEACHER'"
+                class="mt-2" outlined>
                 <v-icon color="primary">
                     mdi-plus
                 </v-icon>
@@ -332,7 +333,7 @@
                     this.info_mark = {
                         session: session.toUpperCase(),
                         mark: mark,
-                        old_mark:mark
+                        old_mark: mark
                     }
                     this.members_choosen = id
                     axios.get('/api/student/mark').then((res) => {
@@ -508,19 +509,25 @@
                                 { title: 'Account', icon: 'mdi-badge-account-horizontal-outline', url: "/profile", selected: false },
                                 { title: 'Modules', icon: 'mdi-calculator', url: "/modules", selected: false },
                             )
-                            if (res.data.user_refere != -1) {
-                                if (res.data.role.toLowerCase() == "chef") {
-                                    this.items.push(
-                                        { title: 'Users', icon: 'mdi-account-supervisor-outline', url: "/users", selected: false },
-                                        { title: 'Members', icon: 'mdi-account-group-outline', url: "/members", selected: false },
-                                        { title: 'PV', icon: 'mdi-clipboard-text-multiple-outline', url: "/pv", selected: false },
-                                    )
-                                }
+                            if (res.data.role.toLowerCase() == "chef") {
                                 this.items.push(
-                                    { title: 'Complaints', icon: 'mdi-alert-circle', url: "/complaints", selected: false },
-                                    { title: 'Marks', icon: 'mdi-format-text-variant-outline', url: "/marks", selected: true }
+                                    { title: 'Users', icon: 'mdi-account-supervisor-outline', url: "/users", selected: false },
+                                    { title: 'Members', icon: 'mdi-account-group-outline', url: "/members", selected: false },
+                                    { title: 'PV', icon: 'mdi-clipboard-text-multiple-outline', url: "/pv", selected: false },
                                 )
                             }
+                            this.items.push(
+                                { title: 'Complaints', icon: 'mdi-alert-circle', url: "/complaints", selected: false },
+                                { title: 'Marks', icon: 'mdi-format-text-variant-outline', url: "/marks", selected: true }
+                            )
+                            this.items.push(
+                            { title: 'Complaints', icon: 'mdi-alert-circle', url: "/complaints", selected: false },
+                        )
+                        if (res.data.user_refere != -1)  {
+                            this.items.push(
+                                { title: 'Marks', icon: 'mdi-format-text-variant-outline', url: "/marks", selected: false }
+                            )
+                        }
                             axios.get('/api/member/me').then((member) => {
                                 if (member.data[0].member_status.state.toLowerCase() == "student") {
                                     this.years.forEach((value, index) => {

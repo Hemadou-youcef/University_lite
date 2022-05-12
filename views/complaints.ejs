@@ -88,20 +88,20 @@
                             { title: 'Account', icon: 'mdi-badge-account-horizontal-outline', url: "/profile", selected: false },
                             { title: 'Modules', icon: 'mdi-calculator', url: "/modules", selected: false },
                         )
-                        if (res.data.user_refere != -1) {
-                            if (res.data.role.toLowerCase() == "chef") {
-                                this.items.push(
-                                    { title: 'Users', icon: 'mdi-account-supervisor-outline', url: "/users", selected: false },
-                                    { title: 'Members', icon: 'mdi-account-group-outline', url: "/members", selected: false },
-                                    { title: 'PV', icon: 'mdi-clipboard-text-multiple-outline', url: "/pv", selected: false },
-                                )
-                            }
+                        if (res.data.role.toLowerCase() == "chef") {
                             this.items.push(
-                                { title: 'Complaints', icon: 'mdi-alert-circle', url: "/complaints", selected: true },
+                                { title: 'Users', icon: 'mdi-account-supervisor-outline', url: "/users", selected: false },
+                                { title: 'Members', icon: 'mdi-account-group-outline', url: "/members", selected: false },
+                                { title: 'PV', icon: 'mdi-clipboard-text-multiple-outline', url: "/pv", selected: false },
+                            )
+                        }
+                        this.items.push(
+                            { title: 'Complaints', icon: 'mdi-alert-circle', url: "/complaints", selected: true },
+                        )
+                        if (res.data.user_refere != -1)  {
+                            this.items.push(
                                 { title: 'Marks', icon: 'mdi-format-text-variant-outline', url: "/marks", selected: false }
                             )
-                        } else {
-                            window.location.href = '/'
                         }
                         axios.get('/api/complaints/-1/' + res.data.role.toLowerCase()).then((response) => {
                             console.log(response.data)
